@@ -40,29 +40,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
   }
 
   // Handle multiple formIds deletion
-  else if ($_POST['action'] === 'delete3form' && isset($_POST['formIds']) && is_array($_POST['formIds'])) {
-    $formIds = $_POST['formIds']; // Array of formIds
+  else if ($_POST['action'] === 'deletetable' && isset($_POST['formId'])) {
+    $formId = isset($_POST['formId']) ? (int)$_POST['formId'] : 0;
 
-    if (count($formIds) > 0) {
-      // Convert array of formIds to string for SQL query
-      $ids = implode(",", $formIds);
+    if ($formId > 0) {
+      // Prepare and execute the delete query
+      $stmt = $conn->prepare("DELETE FROM table1 WHERE id = ?");
+      $stmt->bind_param('i', $formId);
 
-      // SQL query to delete multiple records
-      $sql = "DELETE FROM test2 WHERE fid IN ($ids)";
-
-      if ($conn->query($sql) === TRUE) {
+      if ($stmt->execute()) {
         echo json_encode(['response' => 'success']);
       } else {
         http_response_code(500);
-        echo json_encode(['response' => 'Failed to delete data: ' . $conn->error]);
+        echo json_encode(['response' => 'Failed to delete data: ' . $stmt->error]);
       }
+
+      $stmt->close();
     } else {
       http_response_code(400);
-      echo json_encode(['response' => 'No valid formIds provided']);
+      echo json_encode(['response' => 'Invalid formId']);
+    }
+    $conn->close();
+    exit();
+  } else if ($_POST['action'] === 'deletetable2' && isset($_POST['formId'])) {
+    $formId = isset($_POST['formId']) ? (int)$_POST['formId'] : 0;
+
+    if ($formId > 0) {
+      // Prepare and execute the delete query
+      $stmt = $conn->prepare("DELETE FROM table2 WHERE id = ?");
+      $stmt->bind_param('i', $formId);
+
+      if ($stmt->execute()) {
+        echo json_encode(['response' => 'success', 'message' => "Record with id $formId deleted successfully."]);
+      } else {
+        http_response_code(500);
+        echo json_encode(['response' => 'error', 'message' => 'Failed to delete data: ' . $stmt->error]);
+      }
+
+      $stmt->close();
+    } else {
+      http_response_code(400);
+      echo json_encode(['response' => 'error', 'message' => 'Invalid or missing formId']);
     }
   } else {
     http_response_code(400);
-    echo json_encode(['response' => 'Invalid request']);
+    echo json_encode(['response' => 'error', 'message' => 'Invalid action or missing parameters']);
   }
 
   // Close the database connection

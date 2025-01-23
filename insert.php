@@ -82,56 +82,69 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     $stmt->close();
   } elseif ($action === 'Allsave2') {
-    $originInfo = $_POST['origin_info'] ?? null;
-    $updatedInfo = $_POST['updated_info'] ?? null;
-    $improvInfo = $_POST['improv_info'] ?? null;
+    // รับข้อมูลจาก POST
+    $list_subject = $_POST['list_subject'] ?? null;
+    $selectedethics = $_POST['selectedethics'] ?? null;
+    $selectedknowledge = $_POST['selectedknowledge'] ?? null;
+    $selectedcognitive = $_POST['selectedcognitive'] ?? null;
+    $selectedrelationship = $_POST['selectedrelationship'] ?? null;
+    $selectedanalysis = $_POST['selectedanalysis'] ?? null;
 
-    // ตรวจสอบและดึงค่าจากฐานข้อมูลถ้าค่าเป็น null หรือว่าง
-    $stmt = $conn->prepare("
-        SELECT 
-            MAX(CASE WHEN fid = 6 THEN text END) AS origin_info,
-            MAX(CASE WHEN fid = 7 THEN text END) AS updated_info,
-            MAX(CASE WHEN fid = 8 THEN text END) AS improv_info
-        FROM test2
-    ");
-    $stmt->execute();
-    $result = $stmt->get_result()->fetch_assoc();
-
-    // ใช้ค่าจากฐานข้อมูลถ้าค่า input เป็น null หรือว่าง
-    $originInfo = $originInfo ?: $result['origin_info'] ?? "<p><br></p>";
-    $updatedInfo = $updatedInfo ?: $result['updated_info'] ?? "<p><br></p>";
-    $improvInfo = $improvInfo ?: $result['improv_info'] ?? "<p><br></p>";
-
-    $stmt->close();
-
-    // ถ้าค่าทั้งสามไม่เป็น null ให้ดำเนินการ SQL
-    if ($originInfo && $updatedInfo && $improvInfo) {
-      $stmt = $conn->prepare("
-            INSERT INTO test2 (fid, text, time_stamp) 
-            VALUES (6, ?, NOW()), (7, ?, NOW()), (8, ?, NOW())
-            ON DUPLICATE KEY UPDATE 
-                text = VALUES(text),
-                time_stamp = VALUES(time_stamp)
-        ");
-      $stmt->bind_param("sss", $originInfo, $updatedInfo, $improvInfo);
-
-      if ($stmt->execute()) {
-        echo json_encode(['response' => 'Data saved successfully!']);
-      } else {
-        http_response_code(500);
-        echo json_encode(['response' => 'Failed to save data: ' . $stmt->error]);
-      }
-
-      $stmt->close();
-    } else {
+    // ตรวจสอบว่าข้อมูลสำคัญไม่ว่าง
+    if ($list_subject === null) {
       http_response_code(400);
-      echo json_encode(['response' => 'Invalid input data.']);
+      echo json_encode(['response' => 'Missing required field: list_subject']);
+      exit;
     }
-  }
-} else {
-  http_response_code(405);
-  echo json_encode(['response' => 'Only POST requests are allowed.']);
-}
 
-// Close database connection
-$conn->close();
+    // บันทึกข้อมูลลงใน table1
+    $stmt = $conn->prepare("
+        INSERT INTO table2 (list_subject, row2, row3, row4, row5, row6) 
+        VALUES (?, ?, ?, ?, ?, ?)
+        ON DUPLICATE KEY UPDATE 
+            row2 = VALUES(row2),
+            row3 = VALUES(row3),
+            row4 = VALUES(row4),
+            row5 = VALUES(row5),
+            row6 = VALUES(row6)
+    ");
+
+    // ตรวจสอบว่าการเตรียม statement สำเร็จ
+    if ($stmt === false) {
+      http_response_code(500);
+      echo json_encode(['response' => 'Failed to prepare SQL statement: ' . $conn->error]);
+      exit;
+    }
+
+    // ผูกข้อมูลเข้ากับ statement
+    $stmt->bind_param(
+      "ssssss",
+      $list_subject,
+      $selectedethics,
+      $selectedknowledge,
+      $selectedcognitive,
+      $selectedrelationship,
+      $selectedanalysis
+    );
+
+    // รัน statement และตรวจสอบผลลัพธ์
+    if ($stmt->execute()) {
+      http_response_code(200);
+      $response = ['response' => 'Data saved successfully!'];
+      echo json_encode($response);
+    } else {
+      http_response_code(500);
+      echo json_encode(['response' => 'Failed to save to table1: ' . $stmt->error]);
+    }
+
+    // ปิด statement
+    $stmt->close();
+  } else {
+    http_response_code(405);
+    echo json_encode(['response' => 'Only POST requests are allowed.']);
+  }
+
+
+  // Close database connection
+  $conn->close();
+}

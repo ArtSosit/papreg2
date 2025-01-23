@@ -15,21 +15,27 @@ function getDatabaseConnection()
   return $conn;
 }
 
-// Function to fetch data by fid group
-function fetchData($fidGroup)
+// General function to fetch data from a table by ID
+function fetchDataByTable($tableName, $id)
 {
   $conn = getDatabaseConnection();
-  $placeholders = implode(',', array_fill(0, count($fidGroup), '?'));
-  $sql = "SELECT fid, text FROM test2 WHERE fid IN ($placeholders)";
+
+  // Validate table name to prevent SQL injection
+  $allowedTables = ['table1', 'table2'];
+  if (!in_array($tableName, $allowedTables)) {
+    http_response_code(400);
+    echo json_encode(['response' => 'Invalid table name']);
+    $conn->close();
+    exit();
+  }
+
+  $sql = "SELECT * FROM $tableName WHERE id = ?";
   $stmt = $conn->prepare($sql);
-  $stmt->bind_param(str_repeat('i', count($fidGroup)), ...$fidGroup);
+  $stmt->bind_param('i', $id);
 
   if ($stmt->execute()) {
     $result = $stmt->get_result();
-    $data = [];
-    while ($row = $result->fetch_assoc()) {
-      $data[$row['fid']] = $row['text'];
-    }
+    $data = $result->fetch_all(MYSQLI_ASSOC);
     echo json_encode(['response' => 'success', 'data' => $data]);
   } else {
     http_response_code(500);
@@ -42,14 +48,21 @@ function fetchData($fidGroup)
 
 // Main logic
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  $action = $_POST['action'] ?? null;
-  if ($action === 'getAll') {
-    fetchData([3, 4, 5]);
-  } elseif ($action === 'getAll2') {
-    fetchData([6, 7, 8]);
+  $id = $_POST['id'] ?? null;
+
+  if (!$id || !is_numeric($id)) {
+    http_response_code(400);
+    echo json_encode(['response' => 'Invalid or missing ID']);
+    exit();
+  }
+
+  if ($_POST['action'] === 'getAll') {
+    fetchDataByTable('table1', (int)$id);
+  } elseif ($_POST['action'] === 'getAll2') {
+    fetchDataByTable('table2', (int)$id);
   } else {
     http_response_code(400);
-    echo json_encode(['response' => 'Invalid action.']);
+    echo json_encode(['response' => 'Invalid action']);
   }
 } else {
   http_response_code(405);

@@ -1,5 +1,7 @@
 <?php
 // Enable error reporting for debugging (remove in production)
+
+header('Content-Type: application/json');
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
@@ -53,53 +55,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       echo json_encode(['response' => 'Invalid input data.']);
     }
   } elseif ($action === 'Allsave') {
-    $sid = $_POST['formId'] ?? null;
-    $originInfo = $_POST['origin_info'] ?? null;
-    $updatedInfo = $_POST['updated_info'] ?? null;
-    $improvInfo = $_POST['improv_info'] ?? null;
+    // $sid = $_POST['formId'] ?? null;
+    $originInfo = $_POST['origin_info'] ?? "<p><br></p>";
+    $updatedInfo = $_POST['updated_info'] ?? "<p><br></p>";
+    $improvInfo = $_POST['improv_info'] ?? "<p><br></p>";
 
-    // ตรวจสอบและดึงค่าจากฐานข้อมูลถ้าค่าเป็น null หรือว่าง
+    // บันทึกข้อมูลลงใน table1
     $stmt = $conn->prepare("
-        SELECT 
-            MAX(CASE WHEN id = 1 THEN text END) AS col1,
-            MAX(CASE WHEN id = 2 THEN text END) AS col2,
-            MAX(CASE WHEN id = 3 THEN text END) AS col3
-        FROM table1
-    ");
-    $stmt->execute();
-    $result = $stmt->get_result()->fetch_assoc();
-
-    // ใช้ค่าจากฐานข้อมูลถ้าค่า input เป็น null หรือว่าง
-    $originInfo = $originInfo ?: $result['col1'] ?? "<p><br></p>";
-    $updatedInfo = $updatedInfo ?: $result['col2'] ?? "<p><br></p>";
-    $improvInfo = $improvInfo ?: $result['col3'] ?? "<p><br></p>";
-
-    $stmt->close();
-
-    // ถ้าค่าทั้งสามไม่เป็น null ให้ดำเนินการ SQL
-    if ($originInfo && $updatedInfo && $improvInfo) {
-      $stmt = $conn->prepare("
-            INSERT INTO main (sid) 
-            VALUES (?)
+            INSERT INTO table1 (origin_info, updated_info, improv_info) 
+            VALUES (?, ?, ?)
             ON DUPLICATE KEY UPDATE 
-                sid = VALUES(sid),
+                origin_info = VALUES(origin_info),
+                updated_info = VALUES(updated_info),
+                improv_info = VALUES(improv_info)
         ");
-      $stmt->bind_param("i", $sid);
-      if ($stmt->execute()) {
-        echo json_encode(['response' => 'Data saved successfully!']);
-      } else {
-        http_response_code(500);
-        echo json_encode(['response' => 'Failed to save data: ' . $stmt->error]);
-      }
-      $stmt = $conn->prepare("insert into table1 (sid,origin_info,updated_info,improv_info) 
-      VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE origin_info = (origin_info),updated_info=(updated_info),improv_info=(improv_info)
-       ");
-      $stmt->bind_param("isss", $sid, $originInfo, $updatedInfo, $improvInfo);
-      $stmt->close();
+
+    $stmt->bind_param("sss", $originInfo, $updatedInfo, $improvInfo);
+
+    if ($stmt->execute()) {
+      http_response_code(200);
+      $response = ['response' => 'Data saved successfully!'];
+      echo json_encode($response);
     } else {
-      http_response_code(400);
-      echo json_encode(['response' => 'Invalid input data.']);
+      http_response_code(500);
+      echo json_encode(['response' => 'Failed to save to table1: ' . $stmt->error]);
     }
+    $stmt->close();
   } elseif ($action === 'Allsave2') {
     $originInfo = $_POST['origin_info'] ?? null;
     $updatedInfo = $_POST['updated_info'] ?? null;

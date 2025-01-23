@@ -15,10 +15,10 @@
   <script>
     window.onload = function() {
       fetchDataReasons(1);
-      // fetchDataImproving_content();
+
       fetchDatapropos_issue();
       fetchDatamati();
-      // fetchDataTb1();
+      fetchDataTb1();
       // fetchDataTb2();
 
     }
@@ -65,7 +65,6 @@
         }
       });
     }
-
 
     function fetchDatapropos_issue(formId) {
       $.ajax({
@@ -159,15 +158,24 @@
   </script>
   <script>
     function fetchDataTb1() {
-      const action = "table1"
+      const action = "table1";
 
       var xhr = new XMLHttpRequest();
-      xhr.open('GET', 'fetchtable.php?action=' + action, true); // ใช้ URL ว่างเพื่อเรียกไฟล์เดียวกัน
-      xhr.onreadystatechange = function() {
-        if (xhr.readyState == 4 && xhr.status == 200) {
-          var tb1 = JSON.parse(xhr.responseText);
-          displayDataTb1(tb1);
+      xhr.open('GET', 'fetchtable.php?action=' + action, true);
 
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4) {
+          if (xhr.status == 200) {
+            try {
+              var tb1 = JSON.parse(xhr.responseText);
+              displayDataTb1(tb1);
+              console.log("tb1", tb1);
+            } catch (e) {
+              console.error('Error parsing JSON:', e);
+            }
+          } else {
+            console.error('Failed to fetch data:', xhr.status);
+          }
         }
       };
 
@@ -183,34 +191,40 @@
 
       let output = '';
 
-      // Ensure `tb1.data` is an array and has data
+      // ตรวจสอบว่า `tb1.data` เป็น array และมีข้อมูล
       if (tb1.response === 'success' && Array.isArray(tb1.data) && tb1.data.length > 0) {
-        // Build the table rows
-        output += `
-      <tr class="border-b hover:bg-gray-50">
-        <td class="py-2 px-4">${tb1.data.find(item => item.fid === 3)?.text || ''}</td>
-        <td class="py-2 px-4">${tb1.data.find(item => item.fid === 4)?.text || ''}</td>
-        <td class="py-2 px-4">${tb1.data.find(item => item.fid === 5)?.text || ''}</td>
-        <td class="py-2 px-4">
-          <button  class="btn btn-warning" onclick="editAll1()">แก้ไข</button>
-        </td>
-        <td class="py-2 px-4">
-          <button class="action-btn delete-btn btn btn-danger" data-form-id="[3,4,5]" >ลบ</button>
-        </td>
-      </tr>
-    `;
+        // สร้างแถวในตารางสำหรับแต่ละข้อมูลใน `tb1.data`
+        tb1.data.forEach(item => {
+          console.log("item", item)
+          output += `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="py-2 px-4">${item.id}</td>
+                        <td class="py-2 px-4">${item.origin_info ?? ''}</td>
+                        <td class="py-2 px-4">${item.updated_info ??''}</td>
+                        <td class="py-2 px-4">${item.improv_info ??''}</td>
+                        <td class="py-2 px-4">
+                            <button class="btn btn-warning" onclick="editAll1(${item.id})">แก้ไข</button>
+                        </td>
+                        <td class="py-2 px-4">
+                            <button class="action-btn delete-btn btn btn-danger" data-form-id="${item.id}">ลบ</button>
+                        </td>
+                    </tr>
+                `;
+
+        });
       } else {
-        // Show "no data" message
+        // ถ้าไม่มีข้อมูล
         output = `
-      <tr>
-        <td colspan="5" class="text-center py-4 text-gray-500">ไม่พบข้อมูล</td>
-      </tr>
-    `;
+            <tr>
+                <td colspan="5" class="text-center py-4 text-gray-500">ไม่พบข้อมูล</td>
+            </tr>
+        `;
       }
 
-      // Update table body
+      // อัปเดตเนื้อหาของตาราง
       tableBody.innerHTML = output;
     }
+
 
     function sanitizeHTML(str) {
       const temp = document.createElement('div');
@@ -286,7 +300,7 @@
 <body style=" font-family: 'K2D' , sans-serif ,hold-transition sidebar-mini">
   <!-- nav -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <a class="navbar-brand" href="#">ปรับREG</a>
+    <a class="navbar-brand" href="#">ปรับตัว</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav"
       aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -388,7 +402,7 @@
           </div>
 
           <!-- ปุ่มบันทึก -->
-          <button id="Allsave" data-form-id="2" class="btn btn-success mt-4">บันทึกทั้งหมด</button>
+          <button id="Allsave" class="btn btn-success mt-4">บันทึกทั้งหมด</button>
         </div>
 
         <!-- แสดงข้อมูลในตาราง -->
@@ -396,7 +410,7 @@
           <table class='w-full table-auto bg-gray-100 rounded-lg overflow-hidden'>
             <thead class='bg-gray-200 text-gray-600'>
               <tr>
-                <th class='py-2 px-4 border-b font-k2d'>ที่</th>
+                <th id="" class='py-2 px-4 border-b font-k2d'>ที่</th>
                 <th class='py-2 px-4 border-b font-k2d'>ข้อมูลเดิม</th>
                 <th class='py-2 px-4 border-b font-k2d'>ข้อมูลปรับปรุงใหม่</th>
                 <th class='py-2 px-4 border-b font-k2d'>สาระการปรับปรุง</th>
@@ -567,7 +581,7 @@
         <label class="card-header" for="propos_issue">ประเด็นที่เสนอ</label>
         <div class="card-body">
           <textarea id="propos_issue" class="form-control"></textarea>
-          <button id="savepropos_issue" data-form-id="3" class="btn btn-success mt-2">บันทึก</button>
+          <button id="savepropos_issue" data-form-id="4" class="btn btn-success mt-2">บันทึก</button>
           <div class="card-body bg-white shadow-md rounded-lg">
             <table class='w-full table-auto bg-gray-100 rounded-lg overflow-hidden'>
               <thead class='bg-gray-200 text-gray-600'>
@@ -592,7 +606,7 @@
         <label class="card-header" for="mati">มติ</label>
         <div class="card-body">
           <textarea id="mati" class="form-control"></textarea>
-          <button id="savemati" data-form-id="4" class="btn btn-success mt-2">บันทึก</button>
+          <button id="savemati" data-form-id="5" class="btn btn-success mt-2">บันทึก</button>
           <div class="card-body bg-white shadow-md rounded-lg">
             <table class='w-full table-auto bg-gray-100 rounded-lg overflow-hidden'>
               <thead class='bg-gray-200 text-gray-600'>
@@ -619,46 +633,53 @@
 
         // เพิ่ม
         $('#Allsave').on('click', function() {
-          const formId = $(this).data('form-id');
+          // const formId = $(this).data('form-id');
           const originInfo = $('#origin_info').val();
           const updatedInfo = $('#updated_info').val();
           const improvInfo = $('#improv_info').val();
-          console.log(originInfo, updatedInfo, improvInfo);
+          // console.log("id", formId);
+          console.log("ข้อมูลที่ส่ง:", originInfo, updatedInfo, improvInfo);
 
           // ส่งข้อมูลทั้งหมดไปที่เซิร์ฟเวอร์ผ่าน AJAX
           $.ajax({
             url: 'insert.php', // ไฟล์ PHP สำหรับบันทึกข้อมูล
             type: 'POST',
             data: {
-              formId: formId,
+              // formId: formId,
               action: 'Allsave',
               origin_info: originInfo,
               updated_info: updatedInfo,
               improv_info: improvInfo
             },
             success: function(response) {
-              const result = JSON.parse(response);
-              if (result.response === '') {
-                alert('บันทึกข้อมูลเรียบร้อยแล้ว');
-                // console.log(result.response);
-                // อัปเดตข้อมูลในตาราง
-                $('#data-origin').text(originInfo);
-                $('#data-updated').text(updatedInfo);
-                $('#data-improv').text(improvInfo);
-                // location.reload();
-                fetchDataTb1()
-              } else {
-                alert('เกิดข้อผิดพลาดในการบันทึก');
-                fetchDataTb1()
-                // location.reload();
+              try {
+                const result = JSON.parse(response); // แปลง JSON string
+                console.log("ผลลัพธ์จากเซิร์ฟเวอร์:", result);
+
+                if (result.response === 'success') {
+                  alert('บันทึกข้อมูลเรียบร้อยแล้ว');
+                  // อัปเดตข้อมูลในตาราง
+                  $('#data-origin').text(originInfo);
+                  $('#data-updated').text(updatedInfo);
+                  $('#data-improv').text(improvInfo);
+
+                  fetchDataTb1(); // โหลดข้อมูลใหม่
+                } else {
+                  alert(`เกิดข้อผิดพลาด: ${result.message || 'ไม่ทราบสาเหตุ'}`);
+                  fetchDataTb1(); // โหลดข้อมูลใหม่
+                }
+              } catch (error) {
+                console.error("เกิดข้อผิดพลาดในการแปลง JSON:", error);
+                alert('ไม่สามารถประมวลผลการตอบสนองของเซิร์ฟเวอร์ได้');
               }
             },
-            error: function() {
+            error: function(xhr, status, error) {
+              console.error("เกิดข้อผิดพลาด:", xhr, status, error);
               alert('เกิดข้อผิดพลาดในการส่งข้อมูล');
-              // location.reload();
             }
           });
         });
+
 
         // Handler for saving second set of fields
         $('#Allsave2').on('click', function() {

@@ -14,11 +14,11 @@
   <link rel="stylesheet" href="styles.css">
   <script>
     window.onload = function() {
-      fetchDataReasons(1);
-      fetchDatapropos_issue(4);
-      fetchDatamati(5);
-      fetchDataTb1();
-      fetchDataTb2();
+      // fetchDataReasons(1);
+      // fetchDatapropos_issue(4);
+      // fetchDatamati(5);
+      // fetchDataTb1();
+      // fetchDataTb2();
 
     }
 
@@ -324,23 +324,37 @@
   <!-- end nav -->
   <div class="container mt-5">
     <h1>ฟอร์มบันทึกข้อมูล</h1>
-    <div class="card mt-5">
-      <label class="card-header card-outline" for="origin_info">4.10</label>
-      <div class="card-body bg-white shadow-md rounded-lg">
-        <h5><b>4.10 การเพิ่มเติมรายวิชาในหมวดวิชาเฉพาะ และการเพิ่มเติมแผนที่แสดงการกระจาย
-            ความรับผิดชอบมาตรฐานผลการเรียนรู้จากหลักสูตรสู่รายวิชา (Curriculum Mapping) ในหลักสูตรวิทยาศาสตรบัณฑิต สาขาวิชาชีววิทยา
-            (หลักสูตรปรับปรุง พ.ศ. 2565) คณะวิทยาศาสตร์</b></h5>
-      </div>
-      <div class="card-footer">
-      </div>
-    </div>
-    <!-- หลักการและเหตุผล -->
+    <!-- ชื่อเรื่อง -->
     <div class="form-group">
       <div class="card mt-5">
-        <label class="card-header" for="reasons">เหตุผลในการปรับปรุงแก้ไข</label>
+        <label class="card-header" for="title">ชื่อเรื่อง</label>
+        <div class="card-body">
+          <textarea id="title" class="form-control"></textarea>
+          <button id="savetitle" data-form-id="1" class="btn btn-success mt-2">บันทึก</button>
+        </div>
+        <div class="card-body bg-white shadow-md rounded-lg">
+          <table class='w-full table-auto bg-gray-100 rounded-lg overflow-hidden'>
+            <thead class='bg-gray-200 text-gray-600'>
+              <tr>
+                <th class='py-2 px-4 border-b font-k2d'>หัวข้อ</th>
+                <th class='py-2 px-4 border-b font-k2d'>การกระทำ</th>
+              </tr>
+            </thead>
+            <tbody id="fetchDataReasons">
+            </tbody>
+          </table>
+        </div>
+        <div class="card-footer">
+        </div>
+      </div>
+    </div>
+    <!--หลักการและเหตุผล -->
+    <div class="form-group">
+      <div class="card mt-5">
+        <label class="card-header" for="reasons">หลักการและเหตุผล</label>
         <div class="card-body">
           <textarea id="reasons" class="form-control"></textarea>
-          <button id="savereasons" data-form-id="1" class="btn btn-success mt-2">บันทึก</button>
+          <button id="savereasons" data-form-id="2" class="btn btn-success mt-2">บันทึก</button>
         </div>
         <div class="card-body bg-white shadow-md rounded-lg">
           <table class='w-full table-auto bg-gray-100 rounded-lg overflow-hidden'>
@@ -419,131 +433,6 @@
       <div class="card-footer">
       </div>
     </div>
-    <div class="form-group">
-      <div class="card mt-5">
-        <label class="card-header">จัดการข้อมูล2</label>
-        <div class="card-body">
-
-          <!-- ข้อมูลเดิม2 -->
-          <div class="section">
-            <label for="list_subject">รายวิชา</label>
-            <textarea id="list_subject" class="form-control mt-2"></textarea>
-          </div>
-          <!-- ข้อมูลปรับปรุงใหม่2 -->
-          <div class="section mt-4 form-check">
-
-            <label for="updated_info2">1. คุณธรรม จริยธรรม</label>
-            <div>
-              <input type="radio" id="rating1" name="ethics" value="1">
-              <label for="rating1">1</label>
-              <input type="radio" id="rating2" name="ethics" value="2">
-              <label for="rating2">2</label>
-              <input type="radio" id="rating3" name="ethics" value="3">
-              <label for="rating3">3</label>
-              <input type="radio" id="rating4" name="ethics" value="4">
-              <label for="rating4">4</label>
-              <input type="radio" id="rating5" name="ethics" value="5">
-              <label for="rating5">5</label>
-            </div>
-          </div>
-          <div class="section mt-4 form-check">
-            <label for="improv_info1">2. ความรู้</label>
-            <div>
-              <input type="radio" id="knowledge1" name="knowledge" value="1">
-              <label for="knowledge1">1</label>
-              <input type="radio" id="knowledge2" name="knowledge" value="2">
-              <label for="knowledge2">2</label>
-              <input type="radio" id="knowledge3" name="knowledge" value="3">
-              <label for="knowledge3">3</label>
-              <input type="radio" id="knowledge4" name="knowledge" value="4">
-              <label for="knowledge4">4</label>
-            </div>
-          </div>
-
-          <div class="section mt-4 form-check">
-            <label for="improv_info2">3. ทักษะทางปัญญา</label>
-            <div>
-              <input type="radio" id="cognitive1" name="cognitive" value="1">
-              <label for="cognitive1">1</label>
-              <input type="radio" id="cognitive2" name="cognitive" value="2">
-              <label for="cognitive2">2</label>
-              <input type="radio" id="cognitive3" name="cognitive" value="3">
-              <label for="cognitive3">3</label>
-            </div>
-          </div>
-          <div class="section mt-4 form-check">
-            <label for="improv_info3">4. ทักษะความสัมพันธ์ระหว่างบุคคลและความรับผิดชอบ</label>
-            <div>
-              <input type="radio" id="relationship1" name="relationship" value="1">
-              <label for="relationship1">1</label>
-              <input type="radio" id="relationship2" name="relationship" value="2">
-              <label for="relationship2">2</label>
-              <input type="radio" id="relationship3" name="relationship" value="3">
-              <label for="relationship3">3</label>
-            </div>
-          </div>
-
-          <div class="section mt-4 form-check">
-            <label for="improv_info4">5. ทักษะในการวิเคราะห์เชิงตัวเลข การสื่อสาร และการใช้เทคโนโลยีสารสนเทศ</label>
-            <div>
-              <input type="radio" id="analysis1" name="analysis" value="1">
-              <label for="analysis1">1</label>
-              <input type="radio" id="analysis2" name="analysis" value="2">
-              <label for="analysis2">2</label>
-              <input type="radio" id="analysis3" name="analysis" value="3">
-              <label for="analysis3">3</label>
-              <input type="radio" id="analysis4" name="analysis" value="4">
-              <label for="analysis4">4</label>
-            </div>
-          </div>
-
-          <div class="card-body bg-white shadow-md rounded-lg mt-4">
-            <table class='w-full table-auto bg-gray-100 rounded-lg overflow-hidden'>
-              <thead class='bg-gray-200 text-gray-600'>
-                <tr>
-                  <th rowspan="2" class='py-2 px-4 border-b font-k2d'>รายวิชา</th>
-                  <th colspan="5" class='py-2 px-4 border-b font-k2d'>1.คุณธรรม จริยธรรม</th>
-                  <th colspan="4" class='py-2 px-4 border-b font-k2d'>2.ความรู้</th>
-                  <th colspan="3" class='py-2 px-4 border-b font-k2d'>3.ทักษะทางปัญญา</th>
-                  <th colspan="3" class='py-2 px-4 border-b font-k2d'>4.ทักษะความสัมพันธ์ระหว่างบุคคลและความรับผิดชอบ</th>
-                  <th colspan="4" class='py-2 px-4 border-b font-k2d'>5.ทักษะในการวิเคราะห์เชิงตัวเลข การสื่อสาร และการใช้เทคโนโลยีสารสนเทศ</th>
-                  <th rowspan="2">แก้ไข</th>
-                  <th rowspan="2">ลบ</th>
-                </tr>
-                <tr>
-                  <th>1</th>
-                  <th>2</th>
-                  <th>3</th>
-                  <th>4</th>
-                  <th>5</th>
-                  <th>1</th>
-                  <th>2</th>
-                  <th>3</th>
-                  <th>4</th>
-                  <th>1</th>
-                  <th>2</th>
-                  <th>3</th>
-                  <th>1</th>
-                  <th>2</th>
-                  <th>3</th>
-                  <th>1</th>
-                  <th>2</th>
-                  <th>3</th>
-                  <th>4</th>
-                </tr>
-              </thead>
-              <button id="Allsave2" class="btn btn-success mt-4">บันทึกทั้งหมด</button>
-              <tbody id="displayDataTb2">
-
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div class=" card-footer">
-        </div>
-      </div>
-      </b></h5>
-    </div>
     <div class="card mt-5">
       <div class="card-body bg-white shadow-md rounded-lg">
         &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;โครงสร้างหลักสูตร (จำนวนหน่วยกิตรวม จำนวนหน่วยกิตของรายวิชาหมวดต่างๆ) <b>ไม่มีการเปลี่ยนแปลง</b> ภายหลังการปรับปรุงแก้ไข</span></p>
@@ -605,7 +494,7 @@
     <script>
       $(function() {
         // Initialize all Summernote editors
-        $('#reasons, #Improving_content, #origin_info, #updated_info, #improv_info, #list_subject, #updated_info2, #improv_info2, #propos_issue, #mati').summernote({
+        $('#title,#reasons, #origin_info, #updated_info, #improv_info, #list_subject, #propos_issue, #mati').summernote({
           height: 120,
         });
 
@@ -647,9 +536,8 @@
                   fetchDataTb1(); // โหลดข้อมูลใหม่
                 }
               } catch (error) {
-                //  SyntaxError:
                 console.error("เกิดข้อผิดพลาดในการแปลง JSON:", error);
-                alert("บันทึกข้อมูลแล้ว");
+                alert('ไม่สามารถประมวลผลการตอบสนองของเซิร์ฟเวอร์ได้');
                 fetchDataTb1(); // โหลดข้อมูลใหม่
               }
             },
@@ -665,12 +553,11 @@
         // Handler for saving second set of fields
         $('#Allsave2').on('click', function() {
           const list_subject = $('#list_subject').val();
-          const selectedethics = document.querySelector('input[name="ethics"]:checked')?.value || '';
-          const selectedknowledge = document.querySelector('input[name="knowledge"]:checked')?.value || '';
-          const selectedcognitive = document.querySelector('input[name="cognitive"]:checked')?.value || '';
-          const selectedrelationship = document.querySelector('input[name="relationship"]:checked')?.value || '';
-          const selectedanalysis = document.querySelector('input[name="analysis"]:checked')?.value || '';
-
+          const selectedethics = document.querySelector('input[name="ethics"]:checked')?.value;
+          const selectedknowledge = document.querySelector('input[name="knowledge"]:checked')?.value;
+          const selectedcognitive = document.querySelector('input[name="cognitive"]:checked')?.value;
+          const selectedrelationship = document.querySelector('input[name="relationship"]:checked')?.value;
+          const selectedanalysis = document.querySelector('input[name="analysis"]:checked')?.value;
           console.log(list_subject, selectedethics, selectedknowledge, selectedcognitive, selectedrelationship, selectedanalysis);
 
           // ส่งข้อมูลทั้งหมดไปที่เซิร์ฟเวอร์ผ่าน AJAX
@@ -688,30 +575,29 @@
               selectedanalysis: selectedanalysis
             },
             success: function(response) {
-              try {
-                const result = JSON.parse(response);
+              const result = JSON.parse(response);
+              if (result.response === '') {
+                alert('บันทึกข้อมูลเรียบร้อยแล้ว');
+                windlow.location.reload();
+                // อัปเดตข้อมูลในตาราง
+                $('#data-origin2').text(originInfo);
+                $('#data-updated2').text(updatedInfo);
+                $('#data-improv2').text(improvInfo);
 
-                if (result.response && response.response !== '') {
-                  alert('บันทึกข้อมูลเรียบร้อยแล้ว');
-                  $('#data-origin2').text(originInfo);
-                  $('#data-updated2').text(updatedInfo);
-                  $('#data-improv2').text(improvInfo);
-                  fetchDataTb2();
-                } else {
-                  alert('เกิดข้อผิดพลาดในการบันทึก');
-                  fetchDataTb2();
-                }
-              } catch (e) {
-                console.error('Failed to parse response:', response, e);
-                alert('บันทึกข้อมูลแล้ว', response.response);
-                fetchDataTb2();
+                fetchDataTb2()
+                // location.reload();
+              } else {
+
+                alert('เกิดข้อผิดพลาดในการบันทึก');
+                fetchDataTb2()
+
 
               }
             },
-            error: function(xhr, status, error) {
-              console.error('AJAX Error:', status, error);
-              alert('บันทึกข้อมูลแล้ว: ' + error);
+            error: function() {
+              alert('เกิดข้อผิดพลาดในการส่งข้อมูล');
               fetchDataTb2();
+              location.reload();
             }
           });
         });

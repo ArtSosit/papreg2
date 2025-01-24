@@ -95,77 +95,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // รับข้อมูลจาก POST
     $id = $_POST['formId'] ?? null;
     $list_subject = $_POST['list_subject'] ?? null;
-    $selectedethics = $_POST['selectedethics'] ?? null;
-    $selectedknowledge = $_POST['selectedknowledge'] ?? null;
-    $selectedcognitive = $_POST['selectedcognitive'] ?? null;
-    $selectedrelationship = $_POST['selectedrelationship'] ?? null;
-    $selectedanalysis = $_POST['selectedanalysis'] ?? null;
+    $fields = [
+      $_POST['selectedethics'] ?? null,
+      $_POST['selectedknowledge'] ?? null,
+      $_POST['selectedcognitive'] ?? null,
+      $_POST['selectedrelationship'] ?? null,
+      $_POST['selectedanalysis'] ?? null
+    ];
 
     // ตรวจสอบว่าข้อมูลสำคัญไม่ว่าง
-    if ($list_subject === null) {
+    if (!$list_subject) {
       http_response_code(400);
       echo json_encode(['response' => 'Missing required field: list_subject']);
       exit;
     }
 
-    if ($id) {
-      // บันทึกข้อมูลลงใน table2
-      $stmt = $conn->prepare("
-        INSERT INTO table2 (id,list_subject, row2, row3, row4, row5, row6) 
-        VALUES (?,?, ?, ?, ?, ?, ?)
-        ON DUPLICATE KEY UPDATE 
-            list_subject=VALUES(list_subject),
-            row2 = VALUES(row2),
-            row3 = VALUES(row3),
-            row4 = VALUES(row4),
-            row5 = VALUES(row5),
-            row6 = VALUES(row6)
-    ");
+    // สร้าง SQL และ Bind Params
+    $query = $id
+      ? "INSERT INTO table2 (id, list_subject, row2, row3, row4, row5, row6) 
+           VALUES (?, ?, ?, ?, ?, ?, ?) 
+           ON DUPLICATE KEY UPDATE 
+           list_subject=VALUES(list_subject), row2=VALUES(row2), row3=VALUES(row3), 
+           row4=VALUES(row4), row5=VALUES(row5), row6=VALUES(row6)"
+      : "INSERT INTO table2 (list_subject, row2, row3, row4, row5, row6) 
+           VALUES (?, ?, ?, ?, ?, ?)";
+    $stmt = $conn->prepare($query);
 
-      if ($stmt === false) {
-        http_response_code(500);
-        echo json_encode(['response' => 'Failed to prepare SQL statement: ' . $conn->error]);
-        exit;
-      }
-      $stmt->bind_param(
-        "issssss",
-        $id,
-        $list_subject,
-        $selectedethics,
-        $selectedknowledge,
-        $selectedcognitive,
-        $selectedrelationship,
-        $selectedanalysis
-      );
-    } else {
-      $stmt = $conn->prepare("
-        INSERT INTO table2 (list_subject, row2, row3, row4, row5, row6) 
-        VALUES (?, ?, ?, ?, ?, ?)
-    ");
-
-      if ($stmt === false) {
-        http_response_code(500);
-        echo json_encode(['response' => 'Failed to prepare SQL statement: ' . $conn->error]);
-        exit;
-      }
-      $stmt->bind_param(
-        "ssssss",
-        $list_subject,
-        $selectedethics,
-        $selectedknowledge,
-        $selectedcognitive,
-        $selectedrelationship,
-        $selectedanalysis
-      );
+    if (!$stmt) {
+      http_response_code(500);
+      echo json_encode(['response' => 'Failed to prepare SQL statement: ' . $conn->error]);
+      exit;
     }
-    // รัน statement และตรวจสอบผลลัพธ์
+
+    $id ? $stmt->bind_param("issssss", $id, $list_subject, ...$fields)
+      : $stmt->bind_param("ssssss", $list_subject, ...$fields);
+
+    // Execute SQL และตรวจสอบผลลัพธ์
     if ($stmt->execute()) {
       http_response_code(200);
       $response = ['response' => 'Data saved successfully!'];
       echo json_encode($response);
     } else {
       http_response_code(500);
-      echo json_encode(['response' => 'Failed to save to table1: ' . $stmt->error]);
+      echo json_encode(['response' => 'Failed to save to table2: ' . $stmt->error]);
     }
 
     // ปิด statement

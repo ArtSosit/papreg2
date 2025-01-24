@@ -46,7 +46,7 @@ function fetchDataByTable($tableName, $id)
   $conn->close();
 }
 
-// Main logic
+// Start 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $id = $_POST['id'] ?? null;
 

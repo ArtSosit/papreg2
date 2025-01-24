@@ -269,7 +269,7 @@
                         <td colspan="3" class="py-2 px-4">${item.row5 ??''}</td>
                         <td colspan="4" class="py-2 px-4">${item.row6 ??''}</td>
                         <td class="py-2 px-4">
-                            <button class="btn btn-warning" onclick="editAll1(${item.id})">แก้ไข</button>
+                            <button class="btn btn-warning" onclick="editAll2(${item.id})">แก้ไข</button>
                         </td>
                         <td class="py-2 px-4">
                             <button class="action-btn delete-btn btn btn-danger" onclick="ondeletetable2(${item.id})">ลบ</button>
@@ -623,7 +623,7 @@
             url: 'insert.php', // ไฟล์ PHP สำหรับบันทึกข้อมูล
             type: 'POST',
             data: {
-              // formId: formId,
+              formId: currentId,
               action: 'Allsave',
               origin_info: originInfo,
               updated_info: updatedInfo,
@@ -676,6 +676,7 @@
             url: 'insert.php', // ไฟล์ PHP สำหรับบันทึกข้อมูล
             type: 'POST',
             data: {
+              formId: currentId,
               action: 'Allsave2',
               list_subject: list_subject,
               selectedethics: selectedethics,
@@ -741,9 +742,9 @@
             console.log(response)
             if (formId == 1) {
               fetchDataReasons(formId);
-            } else if (formId == 3) {
-              fetchDatapropos_issue(formId);
             } else if (formId == 4) {
+              fetchDatapropos_issue(formId);
+            } else if (formId == 5) {
               fetchDatamati(formId);
             }
 
@@ -762,8 +763,12 @@
         saveData(selector, formId); // Call the save function with dynamic selector and form ID
       });
       // แก้ไข
+      let currentId = null;
+
       function editAll1(id) {
         console.log("editAll1");
+        console.log("edit", id)
+        currentId = id;
         $.ajax({
           url: 'edit.php', // เปลี่ยนเป็นชื่อไฟล์ PHP ของคุณ
           type: 'POST',
@@ -803,6 +808,7 @@
 
       function editAll2(id) {
         console.log('editAll2');
+        currentId = id;
         $.ajax({
           url: 'edit.php', // เปลี่ยนเป็นชื่อไฟล์ PHP ของคุณ
           type: 'POST',
@@ -814,7 +820,27 @@
             // ตรวจสอบ response ว่า success หรือไม่
             console.log("edit", response)
             if (response && response.response === 'success') {
-              $('#list_subject').summernote('code', response.data[6] || '');
+              $('#list_subject').summernote('code', response.data[0].list_subject || '');
+
+              const row2 = response.data[0].row2;
+              const row3 = response.data[0].row3;
+              const row4 = response.data[0].row4;
+              const row5 = response.data[0].row5;
+              const row6 = response.data[0].row6;
+
+              // console.log("radio", selectedValue)
+
+              $(`input[type="radio"][name="ethics"][value="${row2}"]`).prop('checked', true);
+              $(`input[type="radio"][name="knowledge"][value="${row3}"]`).prop('checked', true);
+              $(`input[type="radio"][name="cognitive"][value="${row4}"]`).prop('checked', true);
+              $(`input[type="radio"][name="relationship"][value="${row5}"]`).prop('checked', true);
+              $(`input[type="radio"][name="analysis"][value="${row6}"]`).prop('checked', true);
+              // if (selectedValue) {
+              //   // ค้นหาและตั้งค่า checked สำหรับ radio
+              //   $(`input[type="radio"][name="analysis"][value="${selectedValue}"]`).prop('checked', true);
+              // } else {
+              //   console.warn('No radio value provided in the response.');
+              // }
             } else {
               console.error('No data found or invalid response:', response);
             }

@@ -55,34 +55,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       echo json_encode(['response' => 'Invalid input data.']);
     }
   } elseif ($action === 'Allsave') {
-    // $sid = $_POST['formId'] ?? null;
+    // รับข้อมูลจาก POST
+    $id = $_POST['formId'] ?? null; // ID ที่ส่งมาจากฝั่งไคลเอนต์
     $originInfo = $_POST['origin_info'] ?? "<p><br></p>";
     $updatedInfo = $_POST['updated_info'] ?? "<p><br></p>";
     $improvInfo = $_POST['improv_info'] ?? "<p><br></p>";
 
-    // บันทึกข้อมูลลงใน table1
-    $stmt = $conn->prepare("
-            INSERT INTO table1 (origin_info, updated_info, improv_info) 
-            VALUES (?, ?, ?)
+    // ตรวจสอบว่ามี ID หรือไม่
+    if ($id) {
+      // อัปเดตข้อมูลใน table1 หากมี ID
+      $stmt = $conn->prepare("
+            INSERT INTO table1 (id, origin_info, updated_info, improv_info) 
+            VALUES (?, ?, ?, ?)
             ON DUPLICATE KEY UPDATE 
                 origin_info = VALUES(origin_info),
                 updated_info = VALUES(updated_info),
                 improv_info = VALUES(improv_info)
         ");
+      $stmt->bind_param("isss", $id, $originInfo, $updatedInfo, $improvInfo);
+    } else {
+      // หากไม่มี ID ให้แทรกข้อมูลใหม่
+      $stmt = $conn->prepare("
+            INSERT INTO table1 (origin_info, updated_info, improv_info) 
+            VALUES (?, ?, ?)
+        ");
+      $stmt->bind_param("sss", $originInfo, $updatedInfo, $improvInfo);
+    }
 
-    $stmt->bind_param("sss", $originInfo, $updatedInfo, $improvInfo);
-
+    // ดำเนินการ SQL
     if ($stmt->execute()) {
       http_response_code(200);
-      $response = ['response' => 'Data saved successfully!'];
-      echo json_encode($response);
+      echo json_encode(['response' => 'success', 'message' => 'Data saved successfully!']);
     } else {
       http_response_code(500);
-      echo json_encode(['response' => 'Failed to save to table1: ' . $stmt->error]);
+      echo json_encode(['response' => 'error', 'message' => 'Failed to save data: ' . $stmt->error]);
     }
     $stmt->close();
   } elseif ($action === 'Allsave2') {
     // รับข้อมูลจาก POST
+    $id = $_POST['formId'] ?? null;
     $list_subject = $_POST['list_subject'] ?? null;
     $selectedethics = $_POST['selectedethics'] ?? null;
     $selectedknowledge = $_POST['selectedknowledge'] ?? null;
@@ -97,11 +108,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       exit;
     }
 
-    // บันทึกข้อมูลลงใน table1
-    $stmt = $conn->prepare("
-        INSERT INTO table2 (list_subject, row2, row3, row4, row5, row6) 
-        VALUES (?, ?, ?, ?, ?, ?)
+    if ($id) {
+      // บันทึกข้อมูลลงใน table2
+      $stmt = $conn->prepare("
+        INSERT INTO table2 (id,list_subject, row2, row3, row4, row5, row6) 
+        VALUES (?,?, ?, ?, ?, ?, ?)
         ON DUPLICATE KEY UPDATE 
+            list_subject=VALUES(list_subject),
             row2 = VALUES(row2),
             row3 = VALUES(row3),
             row4 = VALUES(row4),
@@ -109,24 +122,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             row6 = VALUES(row6)
     ");
 
-    // ตรวจสอบว่าการเตรียม statement สำเร็จ
-    if ($stmt === false) {
-      http_response_code(500);
-      echo json_encode(['response' => 'Failed to prepare SQL statement: ' . $conn->error]);
-      exit;
+      if ($stmt === false) {
+        http_response_code(500);
+        echo json_encode(['response' => 'Failed to prepare SQL statement: ' . $conn->error]);
+        exit;
+      }
+      $stmt->bind_param(
+        "issssss",
+        $id,
+        $list_subject,
+        $selectedethics,
+        $selectedknowledge,
+        $selectedcognitive,
+        $selectedrelationship,
+        $selectedanalysis
+      );
+    } else {
+      $stmt = $conn->prepare("
+        INSERT INTO table2 (list_subject, row2, row3, row4, row5, row6) 
+        VALUES (?, ?, ?, ?, ?, ?)
+    ");
+
+      if ($stmt === false) {
+        http_response_code(500);
+        echo json_encode(['response' => 'Failed to prepare SQL statement: ' . $conn->error]);
+        exit;
+      }
+      $stmt->bind_param(
+        "ssssss",
+        $list_subject,
+        $selectedethics,
+        $selectedknowledge,
+        $selectedcognitive,
+        $selectedrelationship,
+        $selectedanalysis
+      );
     }
-
-    // ผูกข้อมูลเข้ากับ statement
-    $stmt->bind_param(
-      "ssssss",
-      $list_subject,
-      $selectedethics,
-      $selectedknowledge,
-      $selectedcognitive,
-      $selectedrelationship,
-      $selectedanalysis
-    );
-
     // รัน statement และตรวจสอบผลลัพธ์
     if ($stmt->execute()) {
       http_response_code(200);

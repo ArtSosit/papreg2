@@ -3,7 +3,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
   // Database configuration
   $host = 'localhost';
   $username = 'root';
-  $password = ''; // Update this if your database has a password
+  $password = ''; // Update if necessary
   $dbname = 'papreg2'; // Replace with your database name
 
   // Create a connection to the database
@@ -12,79 +12,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
   // Check connection
   if ($conn->connect_error) {
     http_response_code(500);
-    echo json_encode(['response' => 'Database connection failed: ' . $conn->connect_error]);
+    echo json_encode(['status' => 'error', 'message' => 'Database connection failed.']);
     exit();
   }
 
-  // Handle single formId deletion
-  if ($_POST['action'] === 'deleteform' && isset($_POST['formId'])) {
-    $formId = isset($_POST['formId']) ? (int)$_POST['formId'] : 0;
+  $action = $_POST['action'];
+  $formId = isset($_POST['formId']) ? (int)$_POST['formId'] : 0;
 
-    if ($formId > 0) {
-      // Prepare and execute the delete query
-      $stmt = $conn->prepare("DELETE FROM main WHERE sid = ?");
-      $stmt->bind_param('i', $formId);
-
-      if ($stmt->execute()) {
-        echo json_encode(['response' => 'success']);
-      } else {
-        http_response_code(500);
-        echo json_encode(['response' => 'Failed to delete data: ' . $stmt->error]);
-      }
-
-      $stmt->close();
-    } else {
-      http_response_code(400);
-      echo json_encode(['response' => 'Invalid formId']);
-    }
-  }
-
-  // Handle multiple formIds deletion
-  else if ($_POST['action'] === 'deletetable' && isset($_POST['formId'])) {
-    $formId = isset($_POST['formId']) ? (int)$_POST['formId'] : 0;
-
-    if ($formId > 0) {
-      // Prepare and execute the delete query
-      $stmt = $conn->prepare("DELETE FROM table1 WHERE id = ?");
-      $stmt->bind_param('i', $formId);
-
-      if ($stmt->execute()) {
-        echo json_encode(['response' => 'success']);
-      } else {
-        http_response_code(500);
-        echo json_encode(['response' => 'Failed to delete data: ' . $stmt->error]);
-      }
-
-      $stmt->close();
-    } else {
-      http_response_code(400);
-      echo json_encode(['response' => 'Invalid formId']);
-    }
+  // Validate formId for actions that require it
+  if (($action === 'deleteform' || $action === 'deletetable' || $action === 'deletetable2') && $formId <= 0) {
+    http_response_code(400);
+    echo json_encode(['status' => 'error', 'message' => 'Invalid or missing formId']);
     $conn->close();
     exit();
-  } else if ($_POST['action'] === 'deletetable2' && isset($_POST['formId'])) {
-    $formId = isset($_POST['formId']) ? (int)$_POST['formId'] : 0;
+  }
 
-    if ($formId > 0) {
-      // Prepare and execute the delete query
+  switch ($action) {
+    case 'deleteform':
+      $stmt = $conn->prepare("DELETE FROM main WHERE sid = ?");
+      break;
+
+    case 'deletetable':
+      $stmt = $conn->prepare("DELETE FROM table1 WHERE id = ?");
+      break;
+
+    case 'deletetable2':
       $stmt = $conn->prepare("DELETE FROM table2 WHERE id = ?");
-      $stmt->bind_param('i', $formId);
+      break;
 
-      if ($stmt->execute()) {
-        echo json_encode(['response' => 'success', 'message' => "Record with id $formId deleted successfully."]);
-      } else {
-        http_response_code(500);
-        echo json_encode(['response' => 'error', 'message' => 'Failed to delete data: ' . $stmt->error]);
-      }
-
-      $stmt->close();
-    } else {
+    default:
       http_response_code(400);
-      echo json_encode(['response' => 'error', 'message' => 'Invalid or missing formId']);
+      echo json_encode(['status' => 'error', 'message' => 'Invalid action']);
+      $conn->close();
+      exit();
+  }
+
+  // Execute the statement
+  if ($stmt) {
+    $stmt->bind_param('i', $formId);
+
+    if ($stmt->execute()) {
+      echo json_encode(['status' => 'success', 'message' => "Record with ID $formId deleted successfully."]);
+    } else {
+      http_response_code(500);
+      echo json_encode(['status' => 'error', 'message' => 'Failed to delete data: ' . $stmt->error]);
     }
+
+    $stmt->close();
   } else {
-    http_response_code(400);
-    echo json_encode(['response' => 'error', 'message' => 'Invalid action or missing parameters']);
+    http_response_code(500);
+    echo json_encode(['status' => 'error', 'message' => 'Failed to prepare statement: ' . $conn->error]);
   }
 
   // Close the database connection

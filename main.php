@@ -14,34 +14,78 @@
   <link rel="stylesheet" href="styles.css">
   <script>
     window.onload = function() {
-      fetchDataReasons(1);
-      fetchDatapropos_issue(4);
-      fetchDatamati(5);
+      fetchDataTitle();
+      fetchDataReasons();
+      fetchDatapropos_issue();
+      fetchDatamati();
       fetchDataTb1();
       fetchDataTb2();
 
     }
 
-    function fetchDataReasons(formId) {
-      console.log(formId)
+    function fetchDataTitle(formId) {
+      // //console.log(formId)
       $.ajax({
         url: 'fetch_data.php', // URL ของ PHP ที่จะดึงข้อมูล
         type: 'GET', // การส่งข้อมูลแบบ GET
         dataType: 'json', // กำหนดให้รับข้อมูลในรูปแบบ JSON
         data: {
           action: 'getform', // ส่งค่า action ไปด้วย
-          formId: formId // ส่ง formId ไปด้วย
+          formId: formId ?? 1 // ส่ง formId ไปด้วย
         },
         success: function(data) {
           if (data.response === 'success') {
 
             const fetchedDataArray = data.data; // ข้อมูลที่ดึงมา
-            console.log("ข้อมูลทั้งหมดที่ดึงมา:", fetchedDataArray);
+            // //console.log("ข้อมูลทั้งหมดที่ดึงมา:", fetchedDataArray);
+            const tbody = $('#fetchDataTitle'); // อ้างอิง <tbody>
+            tbody.empty();
+            if (Array.isArray(fetchedDataArray) && fetchedDataArray.length > 0) {
+              fetchedDataArray.forEach((item) => {
+                // //console.log("ข้อมูล:", item);
+                const row = `
+              <tr> <!-- เก็บ id เป็น data attribute -->
+                <td>${item.texts}</td> <!-- สมมุติ item มี title -->
+                <td>
+                    <button id="edittitle" class="btn btn-warning edit-btn" data-form-id="${item.sid}">แก้ไข</button>
+                  <button class="btn btn-danger delete-btn" onclick="ondelete(${item.sid})">ลบ</button>
+                </td>
+              </tr>`;
+                tbody.append(row); // เพิ่มแถวใหม่ใน <tbody>
+              });
+            } else {
+              tbody.append('<tr><td colspan="2" class="text-center">ไม่มีข้อมูล</td></tr>');
+            }
+          } else {
+            console.error('ไม่พบข้อมูลในฐานข้อมูล:', data);
+          }
+        },
+        error: function(xhr, status, error) {
+          console.error('เกิดข้อผิดพลาดในการดึงข้อมูล:', error);
+        }
+      });
+    }
+
+    function fetchDataReasons(formId) {
+      // //console.log(formId)
+      $.ajax({
+        url: 'fetch_data.php', // URL ของ PHP ที่จะดึงข้อมูล
+        type: 'GET', // การส่งข้อมูลแบบ GET
+        dataType: 'json', // กำหนดให้รับข้อมูลในรูปแบบ JSON
+        data: {
+          action: 'getform', // ส่งค่า action ไปด้วย
+          formId: formId ?? 2 // ส่ง formId ไปด้วย
+        },
+        success: function(data) {
+          if (data.response === 'success') {
+
+            const fetchedDataArray = data.data; // ข้อมูลที่ดึงมา
+            // //console.log("ข้อมูลทั้งหมดที่ดึงมา:", fetchedDataArray);
             const tbody = $('#fetchDataReasons'); // อ้างอิง <tbody>
             tbody.empty();
             if (Array.isArray(fetchedDataArray) && fetchedDataArray.length > 0) {
               fetchedDataArray.forEach((item) => {
-                console.log("ข้อมูล:", item);
+                // //console.log("ข้อมูล:", item);
                 const row = `
               <tr> <!-- เก็บ id เป็น data attribute -->
                 <td>${item.texts}</td> <!-- สมมุติ item มี title -->
@@ -72,12 +116,12 @@
         dataType: 'json',
         data: {
           action: 'getAll',
-          formId: formId ?? 4
+          formId: formId ?? 3
         },
         success: function(data) {
           if (data.response === 'success') {
             const fetchedDataArray = data.data; // ข้อมูลที่ดึงมา
-            console.log("ข้อมูลทั้งหมดที่ดึงมา:", fetchedDataArray);
+            // //console.log("ข้อมูลทั้งหมดที่ดึงมา:", fetchedDataArray);
 
             const tbody = $('#fetchDatapropos_issue'); // อ้างอิง <tbody>
             tbody.empty(); // ล้างข้อมูลเก่าใน <tbody>
@@ -116,12 +160,12 @@
         dataType: 'json',
         data: {
           action: 'getAll',
-          formId: formId ?? 5
+          formId: formId ?? 4
         },
         success: function(data) {
           if (data.response === 'success') {
             const fetchedDataArray = data.data; // ข้อมูลที่ดึงมา
-            console.log("ข้อมูลทั้งหมดที่ดึงมา:", fetchedDataArray);
+            // //console.log("ข้อมูลทั้งหมดที่ดึงมา:", fetchedDataArray);
 
             const tbody = $('#fetchDatamati'); // อ้างอิง <tbody>
             tbody.empty(); // ล้างข้อมูลเก่าใน <tbody>
@@ -129,7 +173,7 @@
             // ตรวจสอบว่า fetchedDataArray เป็น Array และมีข้อมูล
             if (Array.isArray(fetchedDataArray) && fetchedDataArray.length > 0) {
               fetchedDataArray.forEach((item) => {
-                console.log("ข้อมูล:", item);
+                //console.log("ข้อมูล:", item);
                 const row = `
               <tr> <!-- เก็บ id เป็น data attribute -->
                 <td>${item.texts}</td> <!-- สมมุติ item มี title -->
@@ -150,6 +194,7 @@
         },
         error: function(xhr, status, error) {
           console.error('เกิดข้อผิดพลาดในการดึงข้อมูล:', error);
+
         }
       });
     }
@@ -167,7 +212,7 @@
             try {
               var tb1 = JSON.parse(xhr.responseText);
               displayDataTb1(tb1);
-              console.log("tb1", tb1);
+              ////console.log("tb1", tb1);
             } catch (e) {
               console.error('Error parsing JSON:', e);
             }
@@ -193,7 +238,7 @@
       if (tb1.response === 'success' && Array.isArray(tb1.data) && tb1.data.length > 0) {
         // สร้างแถวในตารางสำหรับแต่ละข้อมูลใน `tb1.data`
         tb1.data.forEach((item, index) => {
-          // console.log("item", item)
+          // //console.log("item", item)
           output += `
                     <tr class="border-b hover:bg-gray-50">
                         <td class="py-2 px-4">${index+1}</td>
@@ -214,7 +259,7 @@
         // ถ้าไม่มีข้อมูล
         output = `
             <tr>
-                <td colspan="5" class="text-center py-4 text-gray-500">ไม่พบข้อมูล</td>
+                <td colspan="6" class="text-center py-4 text-gray-500">ไม่พบข้อมูล</td>
             </tr>
         `;
       }
@@ -233,14 +278,14 @@
   <script>
     function fetchDataTb2() {
       const action = "table2"
-      console.log("table2")
+      ////console.log("table2")
       var xhr = new XMLHttpRequest();
       xhr.open('GET', 'fetchtable.php?action=' + action, true); // ใช้ URL ว่างเพื่อเรียกไฟล์เดียวกัน
       xhr.onreadystatechange = function() {
         if (xhr.readyState == 4 && xhr.status == 200) {
           var tb2 = JSON.parse(xhr.responseText);
           displayDataTb2(tb2);
-          console.log("tb2", tb2);
+          ////console.log("tb2", tb2);
 
         }
       };
@@ -282,7 +327,7 @@
         // ถ้าไม่มีข้อมูล
         output = `
             <tr>
-                <td colspan="5" class="text-center py-4 text-gray-500">ไม่พบข้อมูล</td>
+                <td colspan="6" class="text-center py-4 text-gray-500">ไม่พบข้อมูล</td>
             </tr>
         `;
       }
@@ -313,7 +358,7 @@
       <ul class="navbar-nav
     ">
         <li class="nav-item active">
-          <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+          <a class="nav-link" href="http://localhost/%e0%b8%9b%e0%b8%a3%e0%b8%b1%e0%b8%9a%e0%b8%95%e0%b8%b1%e0%b8%a7/main.php">Home <span class="sr-only">(current)</span></a>
         </li>
         <li class="nav-item">
           <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
@@ -323,15 +368,28 @@
   </nav>
   <!-- end nav -->
   <div class="container mt-5">
-    <h1>ฟอร์มบันทึกข้อมูล</h1>
-    <div class="card mt-5">
-      <label class="card-header card-outline" for="origin_info">4.10</label>
-      <div class="card-body bg-white shadow-md rounded-lg">
-        <h5><b>4.10 การเพิ่มเติมรายวิชาในหมวดวิชาเฉพาะ และการเพิ่มเติมแผนที่แสดงการกระจาย
-            ความรับผิดชอบมาตรฐานผลการเรียนรู้จากหลักสูตรสู่รายวิชา (Curriculum Mapping) ในหลักสูตรวิทยาศาสตรบัณฑิต สาขาวิชาชีววิทยา
-            (หลักสูตรปรับปรุง พ.ศ. 2565) คณะวิทยาศาสตร์</b></h5>
-      </div>
-      <div class="card-footer">
+    <h1>การเพิ่มเติมรายวิชา</h1>
+    <div class="form-group">
+      <div class="card mt-5">
+        <label class="card-header" for="title">ชื่อเรื่อง</label>
+        <div class="card-body">
+          <textarea id="title" class="form-control"></textarea>
+          <button id="savetitle" data-form-id="1" class="btn btn-success mt-2">บันทึก</button>
+        </div>
+        <div class="card-body bg-white shadow-md rounded-lg">
+          <table class='w-full table-auto bg-gray-100 rounded-lg overflow-hidden'>
+            <thead class='bg-gray-200 text-gray-600'>
+              <tr>
+                <th class='py-2 px-4 border-b font-k2d'>หัวข้อ</th>
+                <th class='py-2 px-4 border-b font-k2d'>การกระทำ</th>
+              </tr>
+            </thead>
+            <tbody id="fetchDataTitle">
+            </tbody>
+          </table>
+        </div>
+        <div class="card-footer">
+        </div>
       </div>
     </div>
     <!-- หลักการและเหตุผล -->
@@ -340,7 +398,7 @@
         <label class="card-header" for="reasons">เหตุผลในการปรับปรุงแก้ไข</label>
         <div class="card-body">
           <textarea id="reasons" class="form-control"></textarea>
-          <button id="savereasons" data-form-id="1" class="btn btn-success mt-2">บันทึก</button>
+          <button id="savereasons" data-form-id="2" class="btn btn-success mt-2">บันทึก</button>
         </div>
         <div class="card-body bg-white shadow-md rounded-lg">
           <table class='w-full table-auto bg-gray-100 rounded-lg overflow-hidden'>
@@ -424,14 +482,12 @@
         <label class="card-header">จัดการข้อมูล2</label>
         <div class="card-body">
 
-          <!-- ข้อมูลเดิม2 -->
+          <!-- รายวิขา -->
           <div class="section">
             <label for="list_subject">รายวิชา</label>
             <textarea id="list_subject" class="form-control mt-2"></textarea>
           </div>
-          <!-- ข้อมูลปรับปรุงใหม่2 -->
           <div class="section mt-4 form-check">
-
             <label for="updated_info2">1. คุณธรรม จริยธรรม</label>
             <div>
               <input type="radio" id="rating1" name="ethics" value="1">
@@ -559,7 +615,7 @@
         <label class="card-header" for="propos_issue">ประเด็นที่เสนอ</label>
         <div class="card-body">
           <textarea id="propos_issue" class="form-control"></textarea>
-          <button id="savepropos_issue" data-form-id="4" class="btn btn-success mt-2">บันทึก</button>
+          <button id="savepropos_issue" data-form-id="3" class="btn btn-success mt-2">บันทึก</button>
           <div class="card-body bg-white shadow-md rounded-lg">
             <table class='w-full table-auto bg-gray-100 rounded-lg overflow-hidden'>
               <thead class='bg-gray-200 text-gray-600'>
@@ -584,7 +640,7 @@
         <label class="card-header" for="mati">มติ</label>
         <div class="card-body">
           <textarea id="mati" class="form-control"></textarea>
-          <button id="savemati" data-form-id="5" class="btn btn-success mt-2">บันทึก</button>
+          <button id="savemati" data-form-id="4" class="btn btn-success mt-2">บันทึก</button>
           <div class="card-body bg-white shadow-md rounded-lg">
             <table class='w-full table-auto bg-gray-100 rounded-lg overflow-hidden'>
               <thead class='bg-gray-200 text-gray-600'>
@@ -605,7 +661,7 @@
     <script>
       $(function() {
         // Initialize all Summernote editors
-        $('#reasons, #Improving_content, #origin_info, #updated_info, #improv_info, #list_subject, #updated_info2, #improv_info2, #propos_issue, #mati').summernote({
+        $('#title,#reasons,  #origin_info, #updated_info, #improv_info, #list_subject,#propos_issue, #mati').summernote({
           height: 120,
         });
 
@@ -615,10 +671,12 @@
           const originInfo = $('#origin_info').val();
           const updatedInfo = $('#updated_info').val();
           const improvInfo = $('#improv_info').val();
-          // console.log("id", formId);
-          console.log("ข้อมูลที่ส่ง:", originInfo, updatedInfo, improvInfo);
-
-          // ส่งข้อมูลทั้งหมดไปที่เซิร์ฟเวอร์ผ่าน AJAX
+          // ////console.log("id", formId);
+          ////console.log("ข้อมูลที่ส่ง:", originInfo, updatedInfo, improvInfo);
+          if (!originInfo && !updatedInfo && !improvInfo) {
+            alert('กรุณากรอกข้อมูลให้ครบทุกช่อง');
+            return;
+          }
           $.ajax({
             url: 'insert.php', // ไฟล์ PHP สำหรับบันทึกข้อมูล
             type: 'POST',
@@ -632,7 +690,7 @@
             success: function(response) {
               try {
                 const result = JSON.parse(response); // แปลง JSON string
-                console.log("ผลลัพธ์จากเซิร์ฟเวอร์:", result);
+                ////console.log("ผลลัพธ์จากเซิร์ฟเวอร์:", result);
 
                 if (result.response === 'success') {
                   alert('บันทึกข้อมูลเรียบร้อยแล้ว');
@@ -659,6 +717,7 @@
               fetchDataTb1(); // โหลดข้อมูลใหม่
             }
           });
+
         });
 
 
@@ -671,7 +730,12 @@
           const selectedrelationship = document.querySelector('input[name="relationship"]:checked')?.value || '';
           const selectedanalysis = document.querySelector('input[name="analysis"]:checked')?.value || '';
 
-          console.log(list_subject, selectedethics, selectedknowledge, selectedcognitive, selectedrelationship, selectedanalysis);
+          ////console.log(list_subject, selectedethics, selectedknowledge, selectedcognitive, selectedrelationship, selectedanalysis);
+
+          if (!list_subject) {
+            alert('กรุณากรอกชื่อรายวิชา');
+            return;
+          }
 
           // ส่งข้อมูลทั้งหมดไปที่เซิร์ฟเวอร์ผ่าน AJAX
           $.ajax({
@@ -720,7 +784,7 @@
 
       function saveData(selector, formId) {
         var data = $(selector).summernote('code'); // Get the content
-        console.log(data);
+        ////console.log(data);
 
         // Check if content is empty or not
         if (data.trim() === "" || data.trim() === "<p><br></p>") {
@@ -729,8 +793,8 @@
         }
 
         var encodedData = btoa(unescape(encodeURIComponent(data))); // Encode in Base64
-        console.log(encodedData);
-        console.log(formId)
+        //console.log(encodedData);
+        //console.log(formId)
         // AJAX request to save the data
         $.ajax({
           type: 'POST',
@@ -742,12 +806,14 @@
           },
           success: function(response) {
             alert("บันทึกข้อมูลแล้ว"); // Handle success response
-            console.log(response)
+            //console.log(response)
             if (formId == 1) {
+              fetchDataTitle(formId);
+            } else if (formId == 2) {
               fetchDataReasons(formId);
-            } else if (formId == 4) {
+            } else if (formId == 3) {
               fetchDatapropos_issue(formId);
-            } else if (formId == 5) {
+            } else if (formId == 4) {
               fetchDatamati(formId);
             }
 
@@ -769,8 +835,8 @@
       let currentId = null;
 
       function editAll1(id) {
-        console.log("editAll1");
-        console.log("edit", id)
+        //console.log("editAll1");
+        //console.log("edit", id)
         currentId = id;
         $.ajax({
           url: 'edit.php', // เปลี่ยนเป็นชื่อไฟล์ PHP ของคุณ
@@ -784,14 +850,14 @@
             if (response && response.response === 'success') {
 
               const dataItem = response.data[0];
-              console.log("res", response)
+              //console.log("res", response)
               const {
                 origin_info,
                 updated_info,
                 improv_info
               } = dataItem;
 
-              console.log("log", response);
+              //console.log("log", response);
               // กำหนดค่าที่ดึงมาใส่ใน Summernote
               $('#origin_info').summernote('code', origin_info || '');
               $('#updated_info').summernote('code', updated_info || '');
@@ -808,9 +874,8 @@
         });
       };
 
-
       function editAll2(id) {
-        console.log('editAll2');
+        //console.log('editAll2');
         currentId = id;
         $.ajax({
           url: 'edit.php', // เปลี่ยนเป็นชื่อไฟล์ PHP ของคุณ
@@ -821,7 +886,7 @@
           },
           success: function(response) {
             // ตรวจสอบ response ว่า success หรือไม่
-            console.log("edit", response)
+            //console.log("edit", response)
             if (response && response.response === 'success') {
               $('#list_subject').summernote('code', response.data[0].list_subject || '');
 
@@ -831,7 +896,7 @@
               const row5 = response.data[0].row5;
               const row6 = response.data[0].row6;
 
-              // console.log("radio", selectedValue)
+              // //console.log("radio", selectedValue)
 
               $(`input[type="radio"][name="ethics"][value="${row2}"]`).prop('checked', true);
               $(`input[type="radio"][name="knowledge"][value="${row3}"]`).prop('checked', true);
@@ -856,10 +921,10 @@
 
       $(document).on('click', '.edit-btn', function() {
         const Id = $(this).attr('id').replace('edit', '');
-        console.log("Editor ID:", Id);
+        //console.log("Editor ID:", Id);
 
         const formId = $(this).data('form-id'); // Get form ID from the button
-        console.log("Form ID:", formId);
+        //console.log("Form ID:", formId);
 
         // Fetch data for the given form ID
         $.ajax({
@@ -870,12 +935,12 @@
             action: 'getform' // Specify the action
           },
           success: function(response) {
-            console.log("Raw response:", response); // Debug raw response
+            //console.log("Raw response:", response); // Debug raw response
             try {
               const result = JSON.parse(response);
-              console.log("Parsed result:", result); // Debug parsed result
+              //console.log("Parsed result:", result); // Debug parsed result
               if (result.response === 'success') {
-                console.log(result)
+                //console.log(result)
                 $('#' + Id).summernote('code', result.data[0].texts);
               } else {
                 alert(result.message || 'ไม่พบข้อมูลหรือเกิดข้อผิดพลาด');
@@ -896,9 +961,8 @@
         });
       });
 
-
       function ondeletetable(formId) {
-        console.log("Form ID for deletion:", formId);
+        //console.log("Form ID for deletion:", formId);
         if (confirm('คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลนี้?')) {
           $.ajax({
             type: 'POST',
@@ -908,11 +972,11 @@
               formId: formId // Send the specific form ID
             },
             success: function(response) {
-              console.log("Raw response:", Response); // Debug raw response
+              //console.log("Raw response:", Response); // Debug raw response
               try {
                 const result = JSON.parse(response);
-                console.log("Parsed result:", result); // Debug parsed result
-                if (result.response === 'success') {
+                //console.log("Parsed result:", result); // Debug parsed result
+                if (result.status === 'success') {
                   alert("ลบข้อมูลแล้ว");
                   location.reload()
 
@@ -938,7 +1002,7 @@
       };
 
       function ondeletetable2(formId) {
-        console.log("Form ID for deletion:", formId);
+        //console.log("Form ID for deletion:", formId);
         if (confirm('คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลนี้?')) {
           $.ajax({
             type: 'POST',
@@ -948,11 +1012,11 @@
               formId: formId // Send the specific form ID
             },
             success: function(response) {
-              console.log("Raw response:", response); // Debug raw response
+              //console.log("Raw response:", response); // Debug raw response
               try {
                 const result = JSON.parse(response);
-                console.log("Parsed result:", result); // Debug parsed result
-                if (result.response === 'success') {
+                //console.log("Parsed result:", result); // Debug parsed result
+                if (result.status === 'success') {
                   alert("ลบข้อมูลแล้ว");
                   location.reload()
 
@@ -979,7 +1043,7 @@
 
       function ondelete(formId) {
         // const formId = $(this).siblings('.edit-btn').data('form-id'); // Get form ID from the sibling edit button's data attribute
-        console.log("Form ID for deletion:", formId);
+        //console.log("Form ID for deletion:", formId);
         if (confirm('คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลนี้?')) {
           $.ajax({
             type: 'POST',
@@ -989,11 +1053,10 @@
               formId: formId // Send the specific form ID
             },
             success: function(response) {
-              console.log("Raw response:", response); // Debug raw response
               try {
                 const result = JSON.parse(response);
-                console.log("Parsed result:", result); // Debug parsed result
-                if (result.response === 'success') {
+                if (result.status === 'success') {
+                  //console.log("delete", response);
                   alert("ลบข้อมูลแล้ว");
                   location.reload()
 
@@ -1015,7 +1078,6 @@
             }
           });
         }
-
       };
     </script>
 </body>

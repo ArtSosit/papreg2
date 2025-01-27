@@ -14,14 +14,17 @@
   <link rel="stylesheet" href="styles.css">
   <script>
     window.onload = function() {
-      fetchDataTitle();
+      fetchDataTitle();;
       fetchDataReasons();
+      fetchDataTitle2()
       fetchDatapropos_issue();
       fetchDatamati();
       fetchDataTb1();
       fetchDataTb2();
 
     }
+
+    // const formlist = [1,2,3,4,5] 
 
     function fetchDataTitle(formId) {
       // //console.log(formId)
@@ -66,6 +69,8 @@
       });
     }
 
+
+
     function fetchDataReasons(formId) {
       // //console.log(formId)
       $.ajax({
@@ -109,6 +114,50 @@
       });
     }
 
+
+    function fetchDataTitle2(formId) {
+      // //console.log(formId)
+      $.ajax({
+        url: 'fetch_data.php', // URL ของ PHP ที่จะดึงข้อมูล
+        type: 'GET', // การส่งข้อมูลแบบ GET
+        dataType: 'json', // กำหนดให้รับข้อมูลในรูปแบบ JSON
+        data: {
+          action: 'getform', // ส่งค่า action ไปด้วย
+          formId: formId ?? 3 // ส่ง formId ไปด้วย
+        },
+        success: function(data) {
+          if (data.response === 'success') {
+
+            const fetchedDataArray = data.data; // ข้อมูลที่ดึงมา
+            // //console.log("ข้อมูลทั้งหมดที่ดึงมา:", fetchedDataArray);
+            const tbody = $('#fetchDataTitle2'); // อ้างอิง <tbody>
+            tbody.empty();
+            if (Array.isArray(fetchedDataArray) && fetchedDataArray.length > 0) {
+              fetchedDataArray.forEach((item) => {
+                console.log("ข้อมูล:", item);
+                const row = `
+              <tr> <!-- เก็บ id เป็น data attribute -->
+                <td>${item.texts}</td> <!-- สมมุติ item มี title -->
+                <td>
+                    <button id="edittitle" class="btn btn-warning edit-btn" data-form-id="${item.sid}">แก้ไข</button>
+                  <button class="btn btn-danger delete-btn" onclick="ondelete(${item.sid})">ลบ</button>
+                </td>
+              </tr>`;
+                tbody.append(row); // เพิ่มแถวใหม่ใน <tbody>
+              });
+            } else {
+              tbody.append('<tr><td colspan="2" class="text-center">ไม่มีข้อมูล</td></tr>');
+            }
+          } else {
+            console.error('ไม่พบข้อมูลในฐานข้อมูล:', data);
+          }
+        },
+        error: function(xhr, status, error) {
+          console.error('เกิดข้อผิดพลาดในการดึงข้อมูล:', error);
+        }
+      });
+    }
+
     function fetchDatapropos_issue(formId) {
       $.ajax({
         url: 'fetch_data.php',
@@ -116,7 +165,7 @@
         dataType: 'json',
         data: {
           action: 'getAll',
-          formId: formId ?? 3
+          formId: formId ?? 4
         },
         success: function(data) {
           if (data.response === 'success') {
@@ -160,7 +209,7 @@
         dataType: 'json',
         data: {
           action: 'getAll',
-          formId: formId ?? 4
+          formId: formId ?? 5
         },
         success: function(data) {
           if (data.response === 'success') {
@@ -462,26 +511,34 @@
         </div>
       </div>
     </div>
-    <!-- TABLE2 -->
-    <div class="card mt-5">
-      <label class="card-header card-outline" for="origin_info">4.10</label>
-      <div class="card-body bg-white shadow-md rounded-lg">
-        <h5><b>
-
-            4.10 การเพิ่มเติมรายวิชาในหมวดวิชาเฉพาะ และการเพิ่มเติมแผนที่แสดงการกระจาย
-            ความรับผิดชอบมาตรฐานผลการเรียนรู้จากหลักสูตรสู่รายวิชา (Curriculum Mapping) ในหลักสูตรวิทยาศาสตรบัณฑิต สาขาวิชาชีววิทยา
-            (หลักสูตรปรับปรุง พ.ศ. 2565) คณะวิทยาศาสตร์</b></h5>
-
-        </b></h5>
-      </div>
-      <div class="card-footer">
+    <div class="form-group">
+      <div class="card mt-5">
+        <label class="card-header" for="title2">หัวข้อ</label>
+        <div class="card-body">
+          <textarea id="title2" class="form-control"></textarea>
+          <button id="savetitle2" data-form-id="3" class="btn btn-success mt-2">บันทึก</button>
+        </div>
+        <div class="card-body bg-white shadow-md rounded-lg">
+          <table class='w-full table-auto bg-gray-100 rounded-lg overflow-hidden'>
+            <thead class='bg-gray-200 text-gray-600'>
+              <tr>
+                <th class='py-2 px-4 border-b font-k2d'>หัวข้อ</th>
+                <th class='py-2 px-4 border-b font-k2d'>การกระทำ</th>
+              </tr>
+            </thead>
+            <tbody id="fetchDataTitle2">
+            </tbody>
+          </table>
+        </div>
+        <div class="card-footer">
+        </div>
       </div>
     </div>
+    <!-- TABLE2 -->
     <div class="form-group">
       <div class="card mt-5">
         <label class="card-header">จัดการข้อมูล2</label>
         <div class="card-body">
-
           <!-- รายวิขา -->
           <div class="section">
             <label for="list_subject">รายวิชา</label>
@@ -615,7 +672,7 @@
         <label class="card-header" for="propos_issue">ประเด็นที่เสนอ</label>
         <div class="card-body">
           <textarea id="propos_issue" class="form-control"></textarea>
-          <button id="savepropos_issue" data-form-id="3" class="btn btn-success mt-2">บันทึก</button>
+          <button id="savepropos_issue" data-form-id="4" class="btn btn-success mt-2">บันทึก</button>
           <div class="card-body bg-white shadow-md rounded-lg">
             <table class='w-full table-auto bg-gray-100 rounded-lg overflow-hidden'>
               <thead class='bg-gray-200 text-gray-600'>
@@ -640,7 +697,7 @@
         <label class="card-header" for="mati">มติ</label>
         <div class="card-body">
           <textarea id="mati" class="form-control"></textarea>
-          <button id="savemati" data-form-id="4" class="btn btn-success mt-2">บันทึก</button>
+          <button id="savemati" data-form-id="5" class="btn btn-success mt-2">บันทึก</button>
           <div class="card-body bg-white shadow-md rounded-lg">
             <table class='w-full table-auto bg-gray-100 rounded-lg overflow-hidden'>
               <thead class='bg-gray-200 text-gray-600'>
@@ -661,7 +718,7 @@
     <script>
       $(function() {
         // Initialize all Summernote editors
-        $('#title,#reasons,  #origin_info, #updated_info, #improv_info, #list_subject,#propos_issue, #mati').summernote({
+        $('#title,#reasons,  #origin_info, #updated_info, #improv_info, #title2,#list_subject,#propos_issue, #mati').summernote({
           height: 120,
         });
         //////////////////////////////////////////////////////////////////////////////////// เพิ่ม
@@ -697,8 +754,10 @@
               } else if (formId == 2) {
                 fetchDataReasons(formId);
               } else if (formId == 3) {
-                fetchDatapropos_issue(formId);
+                fetchDataTitle2(formId);
               } else if (formId == 4) {
+                fetchDatapropos_issue(formId);
+              } else if (formId == 5) {
                 fetchDatamati(formId);
               }
 
@@ -808,9 +867,9 @@
 
                 if (result.response && response.response !== '') {
                   alert('บันทึกข้อมูลเรียบร้อยแล้ว');
-                  $('#data-origin2').text(originInfo);
-                  $('#data-updated2').text(updatedInfo);
-                  $('#data-improv2').text(improvInfo);
+                  // $('#data-origin2').text(originInfo);
+                  // $('#data-updated2').text(updatedInfo);
+                  // $('#data-improv2').text(improvInfo);
                   fetchDataTb2();
                 } else {
                   alert('เกิดข้อผิดพลาดในการบันทึก');

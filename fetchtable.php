@@ -31,6 +31,7 @@ if ($action === 'table1') {
 
   // ส่งผลลัพธ์กลับเป็น JSON
   echo json_encode(['response' => 'success', 'data' => $data]);
+  //////////////////////////////////////////////////////
 } elseif ($action === 'table2') {
   // สร้างคำสั่ง SQL
   $query = "SELECT * FROM table2";
@@ -38,10 +39,9 @@ if ($action === 'table1') {
 
   // ตรวจสอบการเตรียม statement
   if (!$stmt) {
-    http_response_code(500);
     echo json_encode([
       'response' => 'error',
-      'message' => 'Query preparation failed: ' . $conn->error
+      'message' => 'Query preparation failed: '
     ]);
     exit;
   }
@@ -51,10 +51,9 @@ if ($action === 'table1') {
 
   // ตรวจสอบข้อผิดพลาดในการ execute
   if ($stmt->error) {
-    http_response_code(500);
     echo json_encode([
       'response' => 'error',
-      'message' => 'Query execution failed: ' . $stmt->error
+      'message' => 'Query execution failed: '
     ]);
     exit;
   }
@@ -64,17 +63,9 @@ if ($action === 'table1') {
   $data = $result->fetch_all(MYSQLI_ASSOC);
 
   // ตรวจสอบว่ามีข้อมูลใน table2 หรือไม่
-  if (empty($data)) {
-    http_response_code(404);
-    echo json_encode([
-      'response' => 'error',
-      'message' => 'No data found in table2'
-    ]);
-    exit;
-  }
+
 
   // ส่งผลลัพธ์กลับไปเป็น JSON
-  http_response_code(200);
   echo json_encode([
     'response' => 'success',
     'data' => $data

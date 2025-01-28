@@ -14,9 +14,14 @@
   <link rel="stylesheet" href="styles.css">
   <script>
     window.onload = function() {
-      fetchDataTitle();;
+      loadfunction();
+
+    }
+
+    function loadfunction() {
+      fetchDataTitle();
       fetchDataReasons();
-      fetchDataTitle2()
+      fetchDataTitle2();
       fetchDatapropos_issue();
       fetchDatamati();
       fetchDataTb1();
@@ -24,10 +29,8 @@
 
     }
 
-    // const formlist = [1,2,3,4,5] 
-
     function fetchDataTitle(formId) {
-      // //console.log(formId)
+      console.log("fetchDataTitle");
       $.ajax({
         url: 'fetch_data.php', // URL ของ PHP ที่จะดึงข้อมูล
         type: 'GET', // การส่งข้อมูลแบบ GET
@@ -38,19 +41,19 @@
         },
         success: function(data) {
           if (data.response === 'success') {
-
-            const fetchedDataArray = data.data; // ข้อมูลที่ดึงมา
-            // //console.log("ข้อมูลทั้งหมดที่ดึงมา:", fetchedDataArray);
+            console.log("fetchDataTitle", data.data);
+            const fetchedDataArray = data.data; // array of objects ที่ได้รับ
             const tbody = $('#fetchDataTitle'); // อ้างอิง <tbody>
-            tbody.empty();
-            if (Array.isArray(fetchedDataArray) && fetchedDataArray.length > 0) {
+            tbody.empty(); // ล้างข้อมูลเดิมในตาราง
+
+            // ตรวจสอบข้อมูลและแสดงผล
+            if (fetchedDataArray.length > 0 && fetchedDataArray[0].texts !== '') {
               fetchedDataArray.forEach((item) => {
-                // //console.log("ข้อมูล:", item);
                 const row = `
-              <tr> <!-- เก็บ id เป็น data attribute -->
-                <td>${item.texts}</td> <!-- สมมุติ item มี title -->
+              <tr>
+                <td>${item.texts}</td> <!-- แสดง texts -->
                 <td>
-                    <button id="edittitle" class="btn btn-warning edit-btn" data-form-id="${item.sid}">แก้ไข</button>
+                  <button id="edittitle" class="btn btn-warning edit-btn" data-form-id="${item.sid}">แก้ไข</button>
                   <button class="btn btn-danger delete-btn" onclick="ondelete(${item.sid})">ลบ</button>
                 </td>
               </tr>`;
@@ -71,6 +74,8 @@
 
 
 
+
+
     function fetchDataReasons(formId) {
       // //console.log(formId)
       $.ajax({
@@ -88,7 +93,7 @@
             // //console.log("ข้อมูลทั้งหมดที่ดึงมา:", fetchedDataArray);
             const tbody = $('#fetchDataReasons'); // อ้างอิง <tbody>
             tbody.empty();
-            if (Array.isArray(fetchedDataArray) && fetchedDataArray.length > 0) {
+            if (fetchedDataArray.length > 0 && fetchedDataArray[0].texts !== '') {
               fetchedDataArray.forEach((item) => {
                 // //console.log("ข้อมูล:", item);
                 const row = `
@@ -132,14 +137,14 @@
             // //console.log("ข้อมูลทั้งหมดที่ดึงมา:", fetchedDataArray);
             const tbody = $('#fetchDataTitle2'); // อ้างอิง <tbody>
             tbody.empty();
-            if (Array.isArray(fetchedDataArray) && fetchedDataArray.length > 0) {
+            if (fetchedDataArray.length > 0 && fetchedDataArray[0].texts !== '') {
               fetchedDataArray.forEach((item) => {
                 console.log("ข้อมูล:", item);
                 const row = `
               <tr> <!-- เก็บ id เป็น data attribute -->
                 <td>${item.texts}</td> <!-- สมมุติ item มี title -->
                 <td>
-                    <button id="edittitle" class="btn btn-warning edit-btn" data-form-id="${item.sid}">แก้ไข</button>
+                    <button id="edittitle2" class="btn btn-warning edit-btn" data-form-id="${item.sid}">แก้ไข</button>
                   <button class="btn btn-danger delete-btn" onclick="ondelete(${item.sid})">ลบ</button>
                 </td>
               </tr>`;
@@ -176,7 +181,7 @@
             tbody.empty(); // ล้างข้อมูลเก่าใน <tbody>
 
             // ตรวจสอบว่า fetchedDataArray เป็น Array และมีข้อมูล
-            if (Array.isArray(fetchedDataArray) && fetchedDataArray.length > 0) {
+            if (fetchedDataArray.length > 0 && fetchedDataArray[0].texts !== '') {
               fetchedDataArray.forEach((item) => {
                 const row = `
               <tr> <!-- เก็บ id เป็น data attribute -->
@@ -220,7 +225,7 @@
             tbody.empty(); // ล้างข้อมูลเก่าใน <tbody>
 
             // ตรวจสอบว่า fetchedDataArray เป็น Array และมีข้อมูล
-            if (Array.isArray(fetchedDataArray) && fetchedDataArray.length > 0) {
+            if (fetchedDataArray.length > 0 && fetchedDataArray[0].texts !== '') {
               fetchedDataArray.forEach((item) => {
                 //console.log("ข้อมูล:", item);
                 const row = `
@@ -282,10 +287,9 @@
       }
 
       let output = '';
-
+      // console.log("tb2", tb1)
       // ตรวจสอบว่า `tb1.data` เป็น array และมีข้อมูล
       if (tb1.response === 'success' && Array.isArray(tb1.data) && tb1.data.length > 0) {
-        // สร้างแถวในตารางสำหรับแต่ละข้อมูลใน `tb1.data`
         tb1.data.forEach((item, index) => {
           // //console.log("item", item)
           output += `
@@ -326,16 +330,23 @@
   </script>
   <script>
     function fetchDataTb2() {
-      const action = "table2"
-      ////console.log("table2")
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', 'fetchtable.php?action=' + action, true); // ใช้ URL ว่างเพื่อเรียกไฟล์เดียวกัน
-      xhr.onreadystatechange = function() {
-        if (xhr.readyState == 4 && xhr.status == 200) {
-          var tb2 = JSON.parse(xhr.responseText);
-          displayDataTb2(tb2);
-          ////console.log("tb2", tb2);
+      const action = "table2";
 
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', 'fetchtable.php?action=' + action, true);
+
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4) {
+          if (xhr.status == 200) {
+            try {
+              var tb2 = JSON.parse(xhr.responseText);
+              displayDataTb2(tb2);
+            } catch (e) {
+              console.error('Error parsing JSON:', e);
+            }
+          } else {
+            console.error('Failed to fetch data:', xhr.status);
+          }
         }
       };
 
@@ -343,17 +354,19 @@
     }
 
     function displayDataTb2(tb2) {
-
       const tableBody = document.getElementById('displayDataTb2');
       if (!tableBody) {
         console.error("Element with ID 'displayDataTb2' not found in the DOM");
         return;
       }
+
       let output = '';
+
+      // ตรวจสอบว่า `tb2.data` เป็น array และมีข้อมูล
+      console.log("tb2", tb2)
       if (tb2.response === 'success' && Array.isArray(tb2.data) && tb2.data.length > 0) {
-
+        // สร้างแถวในตารางสำหรับแต่ละข้อมูลใน `tb2.data`
         tb2.data.forEach((item, index) => {
-
           output += `
                     <tr class="border-b hover:bg-gray-50">
                         <td class="py-2 px-4">${item.list_subject ??''}</td>
@@ -376,7 +389,7 @@
         // ถ้าไม่มีข้อมูล
         output = `
             <tr>
-                <td colspan="6" class="text-center py-4 text-gray-500">ไม่พบข้อมูล</td>
+                <td colspan="22" class="text-center py-4 text-gray-500">ไม่พบข้อมูล</td>
             </tr>
         `;
       }
@@ -741,6 +754,7 @@
           $.ajax({
             type: 'POST',
             url: 'insert.php',
+            dataType: 'json',
             data: {
               action: 'saveform',
               data: encodedData,
@@ -791,6 +805,7 @@
           $.ajax({
             url: 'insert.php', // ไฟล์ PHP สำหรับบันทึกข้อมูล
             type: 'POST',
+            dataType: 'json',
             data: {
               formId: currentId,
               action: 'Allsave',
@@ -851,6 +866,7 @@
           $.ajax({
             url: 'insert.php', // ไฟล์ PHP สำหรับบันทึกข้อมูล
             type: 'POST',
+            dataType: 'json',
             data: {
               formId: currentId,
               action: 'Allsave2',
@@ -905,25 +921,14 @@
         $.ajax({
           url: 'fetch_data.php', // Endpoint for fetching data
           type: 'GET',
+          dataType: 'json',
           data: {
             formId: formId,
             action: 'getform' // Specify the action
           },
           success: function(response) {
-            //console.log("Raw response:", response); // Debug raw response
-            try {
-              const result = JSON.parse(response);
-              //console.log("Parsed result:", result); // Debug parsed result
-              if (result.response === 'success') {
-                //console.log(result)
-                $('#' + Id).summernote('code', result.data[0].texts);
-              } else {
-                alert(result.message || 'ไม่พบข้อมูลหรือเกิดข้อผิดพลาด');
-              }
-            } catch (e) {
-              console.error("JSON parse error:", e.message);
-              alert('Error parsing response. Please check the console for details.');
-            }
+            console.log(response)
+            $('#' + Id).summernote('code', response.data[0].texts);
           },
           error: function(xhr, status, error) {
             console.error("Error details:", {
@@ -942,121 +947,111 @@
         //console.log("editAll1");
         //console.log("edit", id)
         currentId = id;
-        $.ajax({
-          url: 'edit.php', // เปลี่ยนเป็นชื่อไฟล์ PHP ของคุณ
-          type: 'POST',
-          data: {
-            action: 'getAll',
-            id: id
-          },
-          success: function(response) {
-            // Directly use the response object (no need for JSON.parse)
-            if (response && response.response === 'success') {
+        dataType: 'json',
+          $.ajax({
+            url: 'edit.php', // เปลี่ยนเป็นชื่อไฟล์ PHP ของคุณ
+            type: 'POST',
+            data: {
+              action: 'getAll',
+              id: id
+            },
+            success: function(response) {
+              // Directly use the response object (no need for JSON.parse)
+              if (response && response.response === 'success') {
 
-              const dataItem = response.data[0];
-              //console.log("res", response)
-              const {
-                origin_info,
-                updated_info,
-                improv_info
-              } = dataItem;
+                const dataItem = response.data[0];
+                //console.log("res", response)
+                const {
+                  origin_info,
+                  updated_info,
+                  improv_info
+                } = dataItem;
 
-              //console.log("log", response);
-              // กำหนดค่าที่ดึงมาใส่ใน Summernote
-              $('#origin_info').summernote('code', origin_info || '');
-              $('#updated_info').summernote('code', updated_info || '');
-              $('#improv_info').summernote('code', improv_info || '');
-            } else {
-              console.error('No data found or invalid response:', response);
-            }
-          },
-          error: function(xhr, status, error) {
-            // This will handle network or HTTP status errors (not related to JSON parsing)
-            console.error('Error:', error);
-            console.error('Response text:', xhr.responseText); // Log the raw response text from the server
-          },
-        });
+                //console.log("log", response);
+                // กำหนดค่าที่ดึงมาใส่ใน Summernote
+                $('#origin_info').summernote('code', origin_info || '');
+                $('#updated_info').summernote('code', updated_info || '');
+                $('#improv_info').summernote('code', improv_info || '');
+              } else {
+                console.error('No data found or invalid response:', response);
+              }
+            },
+            error: function(xhr, status, error) {
+              // This will handle network or HTTP status errors (not related to JSON parsing)
+              console.error('Error:', error);
+              console.error('Response text:', xhr.responseText); // Log the raw response text from the server
+            },
+          });
       };
       // edit table2
       function editAll2(id) {
         //console.log('editAll2');
         currentId = id;
-        $.ajax({
-          url: 'edit.php', // เปลี่ยนเป็นชื่อไฟล์ PHP ของคุณ
-          type: 'POST',
-          data: {
-            action: 'getAll2',
-            id: id,
-          },
-          success: function(response) {
-            // ตรวจสอบ response ว่า success หรือไม่
-            //console.log("edit", response)
-            if (response && response.response === 'success') {
-              $('#list_subject').summernote('code', response.data[0].list_subject || '');
+        dataType: 'json',
+          $.ajax({
+            url: 'edit.php', // เปลี่ยนเป็นชื่อไฟล์ PHP ของคุณ
+            type: 'POST',
+            data: {
+              action: 'getAll2',
+              id: id,
+            },
+            success: function(response) {
+              // ตรวจสอบ response ว่า success หรือไม่
+              //console.log("edit", response)
+              if (response && response.response === 'success') {
+                $('#list_subject').summernote('code', response.data[0].list_subject || '');
 
-              const row2 = response.data[0].row2;
-              const row3 = response.data[0].row3;
-              const row4 = response.data[0].row4;
-              const row5 = response.data[0].row5;
-              const row6 = response.data[0].row6;
+                const row2 = response.data[0].row2;
+                const row3 = response.data[0].row3;
+                const row4 = response.data[0].row4;
+                const row5 = response.data[0].row5;
+                const row6 = response.data[0].row6;
 
-              // //console.log("radio", selectedValue)
+                // //console.log("radio", selectedValue)
 
-              $(`input[type="radio"][name="ethics"][value="${row2}"]`).prop('checked', true);
-              $(`input[type="radio"][name="knowledge"][value="${row3}"]`).prop('checked', true);
-              $(`input[type="radio"][name="cognitive"][value="${row4}"]`).prop('checked', true);
-              $(`input[type="radio"][name="relationship"][value="${row5}"]`).prop('checked', true);
-              $(`input[type="radio"][name="analysis"][value="${row6}"]`).prop('checked', true);
-            } else {
-              console.error('No data found or invalid response:', response);
-            }
-          },
-          error: function(xhr, status, error) {
-            console.error('Error:', error);
-          },
-        });
+                $(`input[type="radio"][name="ethics"][value="${row2}"]`).prop('checked', true);
+                $(`input[type="radio"][name="knowledge"][value="${row3}"]`).prop('checked', true);
+                $(`input[type="radio"][name="cognitive"][value="${row4}"]`).prop('checked', true);
+                $(`input[type="radio"][name="relationship"][value="${row5}"]`).prop('checked', true);
+                $(`input[type="radio"][name="analysis"][value="${row6}"]`).prop('checked', true);
+              } else {
+                console.error('No data found or invalid response:', response);
+              }
+            },
+            error: function(xhr, status, error) {
+              console.error('Error:', error);
+            },
+          });
       };
 
       /////////////////////////////////////////////////////////////////////////////////////ลบ
       /////////////////////////////////////////////////////////////////////////////////////ลบ
       function ondelete(formId) {
-        // const formId = $(this).siblings('.edit-btn').data('form-id'); // Get form ID from the sibling edit button's data attribute
-        //console.log("Form ID for deletion:", formId);
         if (confirm('คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลนี้?')) {
           $.ajax({
             type: 'POST',
             url: 'delete.php',
+            dataType: 'json', // Expect JSON response
             data: {
               action: 'deleteform',
-              formId: formId // Send the specific form ID
+              formId: formId,
             },
             success: function(response) {
-              try {
-                const result = JSON.parse(response);
-                if (result.status === 'success') {
-                  //console.log("delete", response);
-                  alert("ลบข้อมูลแล้ว");
-                  location.reload()
-
-                } else {
-                  alert(result.message || 'เกิดข้อผิดพลาดในการลบข้อมูล');
-                }
-              } catch (e) {
-                console.error("JSON parse error:", e.message);
-                alert('Error parsing response. Please check the console for details.');
+              if (response.status === 'success') {
+                alert('ลบข้อมูลสำเร็จ');
+                loadfunction();
+              } else {
+                alert('ลบข้อมูลไม่สำเร็จ: ' + response.message);
               }
             },
             error: function(xhr, status, error) {
-              console.error("Error details:", {
-                xhr,
-                status,
-                error
-              });
+              console.error('Error:', xhr.responseText); // Check server response
               alert(`เกิดข้อผิดพลาด: ${status} - ${error}`);
             }
           });
+
         }
-      };
+      }
 
       function ondeletetable(formId) {
         //console.log("Form ID for deletion:", formId);
@@ -1064,25 +1059,17 @@
           $.ajax({
             type: 'POST',
             url: 'delete.php',
+            dataType: 'json',
             data: {
               action: 'deletetable',
               formId: formId // Send the specific form ID
             },
             success: function(response) {
-              //console.log("Raw response:", Response); // Debug raw response
-              try {
-                const result = JSON.parse(response);
-                //console.log("Parsed result:", result); // Debug parsed result
-                if (result.status === 'success') {
-                  alert("ลบข้อมูลแล้ว");
-                  location.reload()
-
-                } else {
-                  alert(result.message || 'เกิดข้อผิดพลาดในการลบข้อมูล');
-                }
-              } catch (e) {
-                console.error("JSON parse error:", e.message);
-                alert('Error parsing response. Please check the console for details.');
+              if (response.status === 'success') {
+                alert('ลบข้อมูลสำเร็จ');
+                loadfunction();
+              } else {
+                alert('ลบข้อมูลไม่สำเร็จ: ' + response.message);
               }
             },
             error: function(xhr, status, error) {
@@ -1104,25 +1091,17 @@
           $.ajax({
             type: 'POST',
             url: 'delete.php',
+            dataType: 'json',
             data: {
               action: 'deletetable2',
               formId: formId // Send the specific form ID
             },
             success: function(response) {
-              //console.log("Raw response:", response); // Debug raw response
-              try {
-                const result = JSON.parse(response);
-                //console.log("Parsed result:", result); // Debug parsed result
-                if (result.status === 'success') {
-                  alert("ลบข้อมูลแล้ว");
-                  location.reload()
-
-                } else {
-                  alert(result.message || 'เกิดข้อผิดพลาดในการลบข้อมูล');
-                }
-              } catch (e) {
-                console.error("JSON parse error:", e.message);
-                alert('Error parsing response. Please check the console for details.');
+              if (response.status === 'success') {
+                alert('ลบข้อมูลสำเร็จ');
+                loadfunction();
+              } else {
+                alert('ลบข้อมูลไม่สำเร็จ: ' + response.message);
               }
             },
             error: function(xhr, status, error) {

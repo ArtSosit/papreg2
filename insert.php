@@ -113,12 +113,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // สร้าง SQL และ Bind Params
     $query = $id
       ? "INSERT INTO table2 (id, list_subject, row2, row3, row4, row5, row6) 
-           VALUES (?, ?, ?, ?, ?, ?, ?) 
-           ON DUPLICATE KEY UPDATE 
-           list_subject=VALUES(list_subject), row2=VALUES(row2), row3=VALUES(row3), 
-           row4=VALUES(row4), row5=VALUES(row5), row6=VALUES(row6)"
+      VALUES (?, ?, ?, ?, ?, ?, ?) 
+      ON DUPLICATE KEY UPDATE 
+      list_subject=VALUES(list_subject), row2=VALUES(row2), row3=VALUES(row3), 
+      row4=VALUES(row4), row5=VALUES(row5), row6=VALUES(row6)"
       : "INSERT INTO table2 (list_subject, row2, row3, row4, row5, row6) 
-           VALUES (?, ?, ?, ?, ?, ?)";
+      VALUES (?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($query);
 
     if (!$stmt) {

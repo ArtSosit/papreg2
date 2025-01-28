@@ -423,7 +423,7 @@
           <a class="nav-link" href="http://localhost/%e0%b8%9b%e0%b8%a3%e0%b8%b1%e0%b8%9a%e0%b8%95%e0%b8%b1%e0%b8%a7/main.php">Home <span class="sr-only">(current)</span></a>
         </li>
         <li class="nav-item">
-          <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+          <a class="nav-link disabled" href="http://localhost/temp/" tabindex="-1" aria-disabled="true">Disabled</a>
         </li>
       </ul>
     </div>
